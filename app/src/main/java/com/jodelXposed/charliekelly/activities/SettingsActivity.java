@@ -284,6 +284,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     public void onGeoFinished(List<Address> addresses) {
         if(addresses == null){
             Toast.makeText(this, "No addresses nearby, unable to set location", Toast.LENGTH_SHORT).show();
+            this.btnSelectPosition.setProgress(-1); //error in geofetching
+            resetProgress();
             return;
         }
 
@@ -299,22 +301,16 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
             if(locality == null){
                 xlog("Locality was null");
-                this.btnSelectPosition.setProgress(-1); //error in geofetching
-                resetProgress();
                 continue;
             }
 
             if(country == null){
                 xlog("Country was null");
-                this.btnSelectPosition.setProgress(-1);
-                resetProgress();
                 continue;
             }
 
             if(countryCode == null){
                 xlog("CountryCode was null");
-                this.btnSelectPosition.setProgress(-1);
-                resetProgress();
                 continue;
             }
 
