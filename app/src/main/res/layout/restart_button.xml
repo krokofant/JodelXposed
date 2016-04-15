@@ -1,0 +1,11 @@
+<Button
+    android:padding="5dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:drawableRight="@drawable/reset_drawable"
+    android:background="@android:color/transparent"
+    android:text="@string/reset"
+    android:gravity="bottom"
+    android:layout_alignParentTop="true"
+    android:layout_alignParentEnd="true"
+    xmlns:android="http://schemas.android.com/apk/res/android" />

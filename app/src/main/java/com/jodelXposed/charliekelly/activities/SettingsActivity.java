@@ -2,11 +2,11 @@ package com.jodelXposed.charliekelly.activities;
 
 import android.Manifest;
 import android.annotation.TargetApi;
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.net.Uri;
 import android.os.Build;
@@ -16,15 +16,20 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,9 +38,11 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.jodelXposed.R;
 import com.jodelXposed.charliekelly.asynctasks.GeocoderAsync;
 import com.jodelXposed.krokofant.utils.Settings;
+import com.orm.SugarContext;
 import com.spazedog.lib.rootfw4.RootFW;
 import com.spazedog.lib.rootfw4.utils.Device;
 
@@ -43,10 +50,8 @@ import org.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Delayed;
 
 import static com.jodelXposed.krokofant.utils.Log.xlog;
 
@@ -55,9 +60,11 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     private int PLACEPICKER_REQUEST = 0;
     private Settings mSettings = Settings.getInstance();
     private SwitchCompat chkIsActive;
-    private ActionProcessButton btnSelectPosition;
-    private ActionProcessButton btnResetDefaults;
-    private ActionProcessButton btnRestartJodel;
+    Button restartJodel;
+    private ActionProcessButton btnSelectPosition,btnSelectUuid;
+    private Button btnResetUuid,btnResetLocation;
+    static SpinnerAdapter location;
+    static SpinnerAdapterUuid uuid;
     private static final int REQUEST_CODE_PERMISSIONS = 200;
     static Boolean isTouched = false;
     public static String currentlocation = null;
@@ -66,22 +73,34 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        SugarContext.init(this);
 
         setSupportActionBar((Toolbar) findViewById(R.id.tool_bar));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkPermissions();
         }
-
         this.btnSelectPosition = (ActionProcessButton) findViewById(R.id.btn_select_position);
-        this.btnResetDefaults = (ActionProcessButton) findViewById(R.id.btn_reset_defaults);
-        this.btnRestartJodel = (ActionProcessButton) findViewById(R.id.btn_restart_jodel);
+        this.btnSelectUuid = (ActionProcessButton) findViewById(R.id.btn_add_uuid);
+        this.btnResetLocation = (Button) findViewById(R.id.btn_reset_location);
+        this.btnResetUuid = (Button) findViewById(R.id.btn_reset_uuid);
 
-        assert this.btnSelectPosition != null;
-        assert this.btnResetDefaults != null;
         this.btnSelectPosition.setOnClickListener(this);
-        this.btnResetDefaults.setOnClickListener(this);
-        this.btnRestartJodel.setOnClickListener(this);
+        this.btnSelectUuid.setOnClickListener(this);
+        this.btnResetUuid.setOnClickListener(this);
+        this.btnResetLocation.setOnClickListener(this);
+
+        List<Location> locations = Location.listAll(Location.class);
+        location = new SpinnerAdapter(this,R.layout.spinner_entry,locations);
+        AppCompatSpinner spinnerLocations = (AppCompatSpinner) findViewById(R.id.spinnerLocation);
+        assert spinnerLocations != null;
+        spinnerLocations.setAdapter(location);
+
+        List<UUID>  list = UUID.listAll(UUID.class);
+        uuid = new SpinnerAdapterUuid(this,R.layout.spinner_entry,list);
+        AppCompatSpinner spinner = (AppCompatSpinner) findViewById(R.id.spinnerUuid);
+        assert spinner != null;
+        spinner.setAdapter(uuid);
 
         this.btnSelectPosition.setMode(ActionProcessButton.Mode.ENDLESS);
 
@@ -133,7 +152,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         assert tvLng != null;
         tvLng.setText("Lng: "+String.valueOf(mSettings.getLng()));
         assert tvCity != null;
-        tvCity.setText("City: "+String.valueOf(mSettings.getCity()));
+        tvCity.setText("City: " + String.valueOf(mSettings.getCity()));
         assert tvCountry != null;
         tvCountry.setText("Country: "+String.valueOf(mSettings.getCountry()));
         assert tvCountrycode != null;
@@ -143,27 +162,35 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onClick(View v) {
         int viewID = v.getId();
-
-        if(viewID == this.btnSelectPosition.getId())
+        if (viewID == this.btnSelectPosition.getId())
             this.pickLocation();
-
-        if(viewID == this.btnResetDefaults.getId()){
+        else if (viewID == this.btnSelectUuid.getId()){
+            addUuid(R.layout.load_diag);
+        }else if (viewID == this.btnResetLocation.getId()){
             mSettings.createDefaultFile(new File(Settings.settingsPath));
-        }
-
-        if(viewID == this.btnRestartJodel.getId()){
-            Device.Process process = RootFW.getProcess("com.tellm.android.app");
-            if (process.kill())
-                openApp(this, "com.tellm.android.app");
-            Log.d("Killed", "Jodel!");
+            setInformation();
+        } else if(viewID == this.btnResetUuid.getId()){
+            //TODO RESET UUID
         }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
-        MenuItem item = menu.findItem(R.id.toggleservice);
-        this.chkIsActive = (SwitchCompat) MenuItemCompat.getActionView(item);
+        MenuItem tbSwitch = menu.findItem(R.id.toggleservice);
+        MenuItem button = menu.findItem(R.id.toggleservice);
+        this.chkIsActive = (SwitchCompat) MenuItemCompat.getActionView(tbSwitch);
+        this.restartJodel = (Button) MenuItemCompat.getActionView(button);
+        this.restartJodel.setTextColor(Color.WHITE);
+        this.restartJodel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Device.Process process = RootFW.getProcess("com.tellm.android.app");
+                if (process.kill())
+                    openApp(getApplicationContext(), "com.tellm.android.app");
+                Log.d("Killed", "Jodel!");
+            }
+        });
         chkIsActive.setChecked(mSettings.isActive());
         setOnClickListener();
         return super.onCreateOptionsMenu(menu);
@@ -294,10 +321,10 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
         //Find an adress that has all needed indexes
         for(int i = 0; i < length; i++){
-            Address a = addresses.get(i);
+            final Address a = addresses.get(i);
             String locality = a.getLocality();
-            String country = a.getCountryName();
-            String countryCode = a.getCountryCode();
+            final String country = a.getCountryName();
+            final String countryCode = a.getCountryCode();
 
             if(locality == null){
                 xlog("Locality was null");
@@ -318,6 +345,19 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             mSettings.setCountry(country);
             mSettings.setCountryCode(countryCode);
             save = true;
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Save location?").setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Location l = new Location();
+                    l.setCity(a.getLocality());
+                    l.setCountry(country);
+                    l.setCountryCode(countryCode);
+                    l.setLat(a.getLatitude());
+                    l.setLng(a.getLongitude());
+                    l.save();
+                }
+            }).setNegativeButton("No",null).show();
             setInformation();
             this.btnSelectPosition.setProgress(100);
             resetProgress();
@@ -363,5 +403,25 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         } catch (PackageManager.NameNotFoundException e) {
             return false;
         }
+    }
+
+    private void addUuid(int layout) {
+        LayoutInflater inflater = getLayoutInflater();
+        View dialoglayout = inflater.inflate(layout, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(dialoglayout);
+        final EditText etUuid = (EditText) dialoglayout.findViewById(R.id.editTextDiagUuid);
+        final EditText etName = (EditText) dialoglayout.findViewById(R.id.editTextDiagName);
+        builder.setPositiveButton("Change", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (!etName.getText().toString().trim().isEmpty() && !etUuid.getText().toString().trim().isEmpty()){
+                    new UUID(etUuid.getText().toString().trim(),etName.getText().toString().trim()).save();
+                } else{
+                    Toast.makeText(SettingsActivity.this, "Please fill all fields!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        builder.show();
     }
 }

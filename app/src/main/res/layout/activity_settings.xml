@@ -38,56 +38,202 @@
                     android:orientation="vertical"
                     android:layout_margin="10dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/title_choose_location"
-                        android:textSize="25sp"
-                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"/>
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                        <TextView
+                            android:id="@+id/title1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/title_choose_location"
+                            android:textSize="25sp"
+                            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"/>
+                        <Button
+                            android:id="@+id/btn_reset_location"
+                            android:textSize="10sp"
+                            android:alpha="0.5"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:drawableRight="@drawable/reset_drawable"
+                            android:background="@android:color/transparent"
+                            android:text="@string/reset"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignBottom="@+id/title1" />
+                    </RelativeLayout>
 
-                    <com.dd.processbutton.iml.ActionProcessButton
-                        android:layout_marginTop="15dp"
-                        android:id="@+id/btn_select_position"
+
+
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:text="@string/select_pos"
-                        android:textColor="@android:color/white"
-                        android:textSize="18sp"
-                        custom:pb_colorComplete="@color/green_complete"
-                        custom:pb_colorNormal="@color/colorPrimary"
-                        custom:pb_colorPressed="@color/colorPrimaryDark"
-                        custom:pb_colorProgress="@color/purple_progress"
-                        custom:pb_textComplete="Success"
-                        custom:pb_textProgress="Loading"
-                        custom:pb_textError="Error"
-                        custom:pb_colorError="@color/red_error" />
+                        android:orientation="vertical"
+                        android:layout_margin="10dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/your_current_location"
+                            android:textSize="20sp"
+                            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/tvLat"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/tvLng"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/tvCity"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/tvCountry"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/tvCountrycode"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/tvDoresetauthenticated"/>
+
+                    </LinearLayout>
+
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <android.support.v7.widget.AppCompatSpinner
+                                android:id="@+id/spinnerLocation"
+                                android:layout_marginTop="5dp"
+                                android:layout_width="232dp"
+                                android:layout_height="wrap_content" />
+
+                            <com.dd.processbutton.iml.ActionProcessButton
+                                android:layout_marginLeft="10dp"
+                                android:layout_marginTop="5dp"
+                                android:id="@+id/btn_select_position"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/set_pos"
+                                android:textColor="@android:color/white"
+                                android:textSize="18sp"
+                                custom:pb_colorComplete="@color/green_complete"
+                                custom:pb_colorNormal="@color/colorPrimary"
+                                custom:pb_colorPressed="@color/colorPrimaryDark"
+                                custom:pb_colorProgress="@color/purple_progress"
+                                custom:pb_textComplete="Success"
+                                custom:pb_textProgress="Loading"
+                                custom:pb_textError="Error"
+                                custom:pb_colorError="@color/red_error" />
+
+                        </LinearLayout>
+
 
                     <com.dd.processbutton.iml.ActionProcessButton
-                        android:layout_marginTop="15dp"
-                        android:id="@+id/btn_reset_defaults"
+                            android:layout_marginTop="10dp"
+                            android:id="@+id/btn_add_location"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/select_location"
+                            android:textColor="@android:color/white"
+                            android:textSize="18sp"
+                            custom:pb_colorComplete="@color/green_complete"
+                            custom:pb_colorNormal="@color/colorPrimary"
+                            custom:pb_colorPressed="@color/colorPrimaryDark"
+                            custom:pb_colorProgress="@color/purple_progress"
+                            custom:pb_textComplete="Success"
+                            custom:pb_textProgress="Loading"
+                            custom:pb_textError="Error"
+                            custom:pb_colorError="@color/red_error" />
+
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/card_view_uid"
+                android:layout_gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="15dp"
+                card_view:cardCornerRadius="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_margin="10dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/title_uid"
+                            android:textSize="25sp"
+                            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+                            android:id="@+id/textView" />
+                        <Button
+                            android:id="@+id/btn_reset_uuid"
+                            android:textSize="10sp"
+                            android:alpha="0.5"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:drawableRight="@drawable/reset_drawable"
+                            android:background="@android:color/transparent"
+                            android:text="@string/reset"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignBottom="@+id/textView" />
+                    </RelativeLayout>
+
+
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:text="@string/reset_defaults"
-                        android:textColor="@android:color/white"
-                        android:textSize="18sp"
-                        custom:pb_colorComplete="@color/green_complete"
-                        custom:pb_colorNormal="@color/colorPrimary"
-                        custom:pb_colorPressed="@color/colorPrimaryDark"
-                        custom:pb_colorProgress="@color/purple_progress"
-                        custom:pb_textComplete="Success"
-                        custom:pb_textProgress="Loading"
-                        custom:pb_textError="Error"
-                        custom:pb_colorError="@color/red_error" />
+                        android:orientation="horizontal">
+
+                        <android.support.v7.widget.AppCompatSpinner
+                            android:id="@+id/spinnerUuid"
+                            android:layout_marginTop="5dp"
+                            android:layout_width="234dp"
+                            android:layout_height="wrap_content" />
+
+                        <com.dd.processbutton.iml.ActionProcessButton
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginTop="5dp"
+                            android:id="@+id/btn_set_uuid"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/set_pos"
+                            android:textColor="@android:color/white"
+                            android:textSize="18sp"
+                            custom:pb_colorComplete="@color/green_complete"
+                            custom:pb_colorNormal="@color/colorPrimary"
+                            custom:pb_colorPressed="@color/colorPrimaryDark"
+                            custom:pb_colorProgress="@color/purple_progress"
+                            custom:pb_textComplete="Success"
+                            custom:pb_textProgress="Loading"
+                            custom:pb_textError="Error"
+                            custom:pb_colorError="@color/red_error" />
+
+                    </LinearLayout>
 
                     <com.dd.processbutton.iml.ActionProcessButton
-                        android:layout_marginTop="15dp"
-                        android:id="@+id/btn_restart_jodel"
+                        android:layout_marginTop="10dp"
+                        android:id="@+id/btn_add_uuid"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:text="@string/restart_jodel"
+                        android:text="@string/add_uuid"
                         android:textColor="@android:color/white"
                         android:textSize="18sp"
                         custom:pb_colorComplete="@color/green_complete"
@@ -112,44 +258,6 @@
                 android:layout_margin="15dp"
                 card_view:cardCornerRadius="4dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_margin="10dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/your_current_location"
-                        android:textSize="20sp"
-                        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/tvLat"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/tvLng"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/tvCity"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/tvCountry"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/tvCountrycode"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/tvDoresetauthenticated"/>
-
-                </LinearLayout>
 
             </android.support.v7.widget.CardView>
 

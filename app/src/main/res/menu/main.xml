@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/miProfile"
+        app:showAsAction="always"
+        android:title="Restart">
+    </item>
+
+    <!--<item
+        android:id="@+id/menuRestartJodel"
+        app:showAsAction="always"
+        android:title=""
+        android:actionLayout="@layout/restart_button"/>-->
+
     <item
         android:id="@+id/toggleservice"
         app:actionViewClass="android.support.v7.widget.SwitchCompat"
