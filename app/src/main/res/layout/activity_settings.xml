@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:tools="http://schemas.android.com/tools"
-    xmlns:custom="http://schemas.android.com/apk/res-auto"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     tools:context=".charliekelly.activities.SettingsActivity">
 
     <include
@@ -15,8 +15,8 @@
         android:id="@+id/scrollview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scrollbarStyle="outsideInset"
-        android:scrollbarAlwaysDrawVerticalTrack="true">
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:scrollbarStyle="outsideInset">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -26,17 +26,17 @@
             <android.support.v7.widget.CardView
                 xmlns:card_view="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/card_view"
-                android:layout_gravity="center"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_margin="15dp"
                 card_view:cardCornerRadius="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_margin="10dp">
+                    android:layout_margin="10dp"
+                    android:orientation="vertical">
 
                     <RelativeLayout
                         android:layout_width="match_parent"
@@ -46,20 +46,20 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/title_choose_location"
-                            android:textSize="25sp"
-                            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"/>
+                            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+                            android:textSize="25sp" />
                         <Button
                             android:id="@+id/btn_reset_location"
-                            android:textSize="10sp"
-                            android:alpha="0.5"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:drawableRight="@drawable/reset_drawable"
-                            android:background="@android:color/transparent"
-                            android:text="@string/reset"
-                            android:layout_alignParentTop="true"
+                            android:layout_alignBottom="@+id/title1"
                             android:layout_alignParentEnd="true"
-                            android:layout_alignBottom="@+id/title1" />
+                            android:layout_alignParentTop="true"
+                            android:alpha="0.5"
+                            android:background="@android:color/transparent"
+                            android:drawableRight="@drawable/reset_drawable"
+                            android:text="@string/reset"
+                            android:textSize="10sp" />
                     </RelativeLayout>
 
 
@@ -67,39 +67,38 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_margin="10dp">
+                        android:orientation="vertical">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/your_current_location"
-                            android:textSize="20sp"
-                            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"/>
+                            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+                            android:textSize="20sp" />
                         <TextView
+                            android:id="@+id/tvLat"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/tvLat"/>
+                            android:layout_height="wrap_content" />
                         <TextView
+                            android:id="@+id/tvLng"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/tvLng"/>
+                            android:layout_height="wrap_content" />
                         <TextView
+                            android:id="@+id/tvCity"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/tvCity"/>
+                            android:layout_height="wrap_content" />
                         <TextView
+                            android:id="@+id/tvCountry"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/tvCountry"/>
+                            android:layout_height="wrap_content" />
                         <TextView
+                            android:id="@+id/tvCountrycode"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/tvCountrycode"/>
+                            android:layout_height="wrap_content" />
                         <TextView
+                            android:id="@+id/tvDoresetauthenticated"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/tvDoresetauthenticated"/>
+                            android:layout_height="wrap_content" />
 
                     </LinearLayout>
 
@@ -111,47 +110,47 @@
 
                             <android.support.v7.widget.AppCompatSpinner
                                 android:id="@+id/spinnerLocation"
-                                android:layout_marginTop="5dp"
                                 android:layout_width="232dp"
-                                android:layout_height="wrap_content" />
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="5dp" />
 
                             <com.dd.processbutton.iml.ActionProcessButton
-                                android:layout_marginLeft="10dp"
-                                android:layout_marginTop="5dp"
                                 android:id="@+id/btn_select_position"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginLeft="10dp"
+                                android:layout_marginTop="5dp"
                                 android:text="@string/set_pos"
                                 android:textColor="@android:color/white"
                                 android:textSize="18sp"
                                 custom:pb_colorComplete="@color/green_complete"
+                                custom:pb_colorError="@color/red_error"
                                 custom:pb_colorNormal="@color/colorPrimary"
                                 custom:pb_colorPressed="@color/colorPrimaryDark"
                                 custom:pb_colorProgress="@color/purple_progress"
                                 custom:pb_textComplete="Success"
-                                custom:pb_textProgress="Loading"
                                 custom:pb_textError="Error"
-                                custom:pb_colorError="@color/red_error" />
+                                custom:pb_textProgress="Loading" />
 
                         </LinearLayout>
 
 
                     <com.dd.processbutton.iml.ActionProcessButton
+                        android:id="@+id/btn_add_location"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:id="@+id/btn_add_location"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
                             android:text="@string/select_location"
                             android:textColor="@android:color/white"
                             android:textSize="18sp"
                             custom:pb_colorComplete="@color/green_complete"
+                        custom:pb_colorError="@color/red_error"
                             custom:pb_colorNormal="@color/colorPrimary"
                             custom:pb_colorPressed="@color/colorPrimaryDark"
                             custom:pb_colorProgress="@color/purple_progress"
                             custom:pb_textComplete="Success"
-                            custom:pb_textProgress="Loading"
                             custom:pb_textError="Error"
-                            custom:pb_colorError="@color/red_error" />
+                        custom:pb_textProgress="Loading" />
 
                 </LinearLayout>
 
@@ -160,40 +159,40 @@
             <android.support.v7.widget.CardView
                 xmlns:card_view="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/card_view_uid"
-                android:layout_gravity="center"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_margin="15dp"
                 card_view:cardCornerRadius="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_margin="10dp">
+                    android:layout_margin="10dp"
+                    android:orientation="vertical">
 
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
                         <TextView
+                            android:id="@+id/textView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/title_uid"
-                            android:textSize="25sp"
                             android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
-                            android:id="@+id/textView" />
+                            android:textSize="25sp" />
                         <Button
                             android:id="@+id/btn_reset_uuid"
-                            android:textSize="10sp"
-                            android:alpha="0.5"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:drawableRight="@drawable/reset_drawable"
-                            android:background="@android:color/transparent"
-                            android:text="@string/reset"
-                            android:layout_alignParentTop="true"
+                            android:layout_alignBottom="@+id/textView"
                             android:layout_alignParentEnd="true"
-                            android:layout_alignBottom="@+id/textView" />
+                            android:layout_alignParentTop="true"
+                            android:alpha="0.5"
+                            android:background="@android:color/transparent"
+                            android:drawableRight="@drawable/reset_drawable"
+                            android:text="@string/reset"
+                            android:textSize="10sp" />
                     </RelativeLayout>
 
 
@@ -204,46 +203,46 @@
 
                         <android.support.v7.widget.AppCompatSpinner
                             android:id="@+id/spinnerUuid"
-                            android:layout_marginTop="5dp"
                             android:layout_width="234dp"
-                            android:layout_height="wrap_content" />
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp" />
 
                         <com.dd.processbutton.iml.ActionProcessButton
-                            android:layout_marginLeft="10dp"
-                            android:layout_marginTop="5dp"
                             android:id="@+id/btn_set_uuid"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginTop="5dp"
                             android:text="@string/set_pos"
                             android:textColor="@android:color/white"
                             android:textSize="18sp"
                             custom:pb_colorComplete="@color/green_complete"
+                            custom:pb_colorError="@color/red_error"
                             custom:pb_colorNormal="@color/colorPrimary"
                             custom:pb_colorPressed="@color/colorPrimaryDark"
                             custom:pb_colorProgress="@color/purple_progress"
                             custom:pb_textComplete="Success"
-                            custom:pb_textProgress="Loading"
                             custom:pb_textError="Error"
-                            custom:pb_colorError="@color/red_error" />
+                            custom:pb_textProgress="Loading" />
 
                     </LinearLayout>
 
                     <com.dd.processbutton.iml.ActionProcessButton
-                        android:layout_marginTop="10dp"
                         android:id="@+id/btn_add_uuid"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
                         android:text="@string/add_uuid"
                         android:textColor="@android:color/white"
                         android:textSize="18sp"
                         custom:pb_colorComplete="@color/green_complete"
+                        custom:pb_colorError="@color/red_error"
                         custom:pb_colorNormal="@color/colorPrimary"
                         custom:pb_colorPressed="@color/colorPrimaryDark"
                         custom:pb_colorProgress="@color/purple_progress"
                         custom:pb_textComplete="Success"
-                        custom:pb_textProgress="Loading"
                         custom:pb_textError="Error"
-                        custom:pb_colorError="@color/red_error" />
+                        custom:pb_textProgress="Loading" />
 
                 </LinearLayout>
 
@@ -252,9 +251,9 @@
             <android.support.v7.widget.CardView
                 xmlns:card_view="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/card_view2"
-                android:layout_gravity="center"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_margin="15dp"
                 card_view:cardCornerRadius="4dp">
 
@@ -262,9 +261,9 @@
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
-                android:layout_gravity="center"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_margin="15dp"
                 card_view:cardCornerRadius="4dp">
 

@@ -1,13 +1,11 @@
 package com.jodelXposed.charliekelly.activities;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.jodelXposed.R;
@@ -17,17 +15,13 @@ import java.util.List;
 /**
  * Created by Admin on 13.04.2016.
  */
-public class SpinnerAdapter extends ArrayAdapter<Location> {
+public class SpinnerAdapterLocation extends ArrayAdapter<Location> {
 
-    // Your sent context
-    private Context context;
-    // Your custom values for the spinner (User)
-    private List<Location> locations;
     LayoutInflater inflater;
+    private List<Location> locations;
 
-    public SpinnerAdapter(Context context, int textViewResourceId,List<Location> values) {
+    public SpinnerAdapterLocation(Context context, int textViewResourceId, List<Location> values) {
         super(context, textViewResourceId, values);
-        this.context = context;
         this.locations = values;
         inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -44,9 +38,6 @@ public class SpinnerAdapter extends ArrayAdapter<Location> {
         return position;
     }
 
-
-    // And the "magic" goes here
-    // This is for the "passive" state of the spinner
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         /********** Inflate spinner_rows.xml file for each row ( Defined below ) ************/
@@ -57,11 +48,10 @@ public class SpinnerAdapter extends ArrayAdapter<Location> {
         delete.setVisibility(View.INVISIBLE);
         Location l = locations.get(position);
         name.setText(l.getCity());
+//        SettingsActivity.notifyDataSetChanged();
         return row;
     }
 
-    // And here is when the "chooser" is popped up
-    // Normally is the same view, but you can customize it if you want
     @Override
     public View getDropDownView(int position, View convertView,ViewGroup parent) {
         View row = inflater.inflate(R.layout.spinner_entry, parent, false);
@@ -73,7 +63,8 @@ public class SpinnerAdapter extends ArrayAdapter<Location> {
             @Override
             public void onClick(View v) {
                 Location.delete(l);
-                notifyDataSetChanged();
+                SettingsActivity.locationList = Location.listAll(Location.class);
+//                SettingsActivity.notifyDataSetChanged();
             }
         });
         if(position==0){

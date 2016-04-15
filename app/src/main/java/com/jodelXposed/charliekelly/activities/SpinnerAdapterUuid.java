@@ -17,9 +17,9 @@ import java.util.List;
  */
 public class SpinnerAdapterUuid extends ArrayAdapter<UUID> {
 
+    LayoutInflater inflater;
     private Context context;
     private List<UUID> uuids;
-    LayoutInflater inflater;
 
     public SpinnerAdapterUuid(Context context, int textViewResourceId,List<UUID> values) {
         super(context, textViewResourceId, values);
@@ -43,17 +43,15 @@ public class SpinnerAdapterUuid extends ArrayAdapter<UUID> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = inflater.inflate(R.layout.spinner_entry, parent, false);
-
         TextView name        = (TextView)row.findViewById(R.id.textView);
         ImageButton delete = (ImageButton) row.findViewById(R.id.imageButton);
         delete.setVisibility(View.INVISIBLE);
         UUID u = uuids.get(position);
         name.setText(u.getName());
+//        SettingsActivity.notifyDataSetChanged();
         return row;
     }
 
-    // And here is when the "chooser" is popped up
-    // Normally is the same view, but you can customize it if you want
     @Override
     public View getDropDownView(int position, View convertView,ViewGroup parent) {
         View row = inflater.inflate(R.layout.spinner_entry, parent, false);
@@ -65,8 +63,8 @@ public class SpinnerAdapterUuid extends ArrayAdapter<UUID> {
             @Override
             public void onClick(View v) {
                 UUID.delete(u);
-                assert SettingsActivity.uuid != null;
-                SettingsActivity.uuid.notifyDataSetChanged();
+                SettingsActivity.uuidList = UUID.listAll(UUID.class);
+//                SettingsActivity.notifyDataSetChanged();
             }
         });
         name.setText(u.getName()+" ("+u.getUUID()+")");

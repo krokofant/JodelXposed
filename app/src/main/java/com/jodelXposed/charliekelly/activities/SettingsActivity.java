@@ -1,8 +1,10 @@
 package com.jodelXposed.charliekelly.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,7 +14,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -25,11 +29,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,11 +39,11 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.jodelXposed.R;
 import com.jodelXposed.charliekelly.asynctasks.GeocoderAsync;
 import com.jodelXposed.krokofant.utils.Settings;
 import com.orm.SugarContext;
+import com.pixplicity.easyprefs.library.Prefs;
 import com.spazedog.lib.rootfw4.RootFW;
 import com.spazedog.lib.rootfw4.utils.Device;
 
@@ -57,52 +58,57 @@ import static com.jodelXposed.krokofant.utils.Log.xlog;
 
 public class SettingsActivity extends AppCompatActivity implements View.OnClickListener, GeocoderAsync.OnGeoListener{
 
+    private static final int REQUEST_CODE_PERMISSIONS = 200;
+    public static String currentlocation = null;
+    static Boolean isTouched = false;
+    static List<Location> locationList;
+    static List<UUID> uuidList;
+    private static SpinnerAdapterLocation spinnerAdapterLocation;
+    private static SpinnerAdapterUuid spinnerAdapterUuid;
+    AppCompatSpinner spinnerUuid, spinnerLocations;
     private int PLACEPICKER_REQUEST = 0;
     private Settings mSettings = Settings.getInstance();
     private SwitchCompat chkIsActive;
-    Button restartJodel;
-    private ActionProcessButton btnSelectPosition,btnSelectUuid;
-    private Button btnResetUuid,btnResetLocation;
-    static SpinnerAdapter location;
-    static SpinnerAdapterUuid uuid;
-    private static final int REQUEST_CODE_PERMISSIONS = 200;
-    static Boolean isTouched = false;
-    public static String currentlocation = null;
+    private ActionProcessButton btnSetPosition, btnSetUuid, btnPickLocation, btnAddUuid;
+    private Button btnResetUuid, btnResetLocation, btnRestartJodel;
+
+    public static boolean openApp(Context context, String packageName) {
+        PackageManager manager = context.getPackageManager();
+        try {
+            Intent i = manager.getLaunchIntentForPackage(packageName);
+            if (i == null) {
+                throw new PackageManager.NameNotFoundException();
+            }
+            i.addCategory(Intent.CATEGORY_LAUNCHER);
+            context.startActivity(i);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         SugarContext.init(this);
+        new Prefs.Builder()
+                .setContext(this)
+                .setMode(ContextWrapper.MODE_PRIVATE)
+                .setPrefsName(getPackageName())
+                .setUseDefaultSharedPreference(true)
+                .build();
+        if (!Prefs.getBoolean("firstRun", false)) {
+            new Location(mSettings.getLat(), mSettings.getLng(), mSettings.getCity(), mSettings.getCountry(), mSettings.getCountryCode()).save();
+            //TODO PUT DEFAULT UUID IN DATABASE
+            new UUID("UUIDPLACEHOLDER", "NAMEPLACEHOLDER").save();
+            Prefs.putBoolean("firstRun", true);
+        }
 
         setSupportActionBar((Toolbar) findViewById(R.id.tool_bar));
+        init();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            checkPermissions();
-        }
-        this.btnSelectPosition = (ActionProcessButton) findViewById(R.id.btn_select_position);
-        this.btnSelectUuid = (ActionProcessButton) findViewById(R.id.btn_add_uuid);
-        this.btnResetLocation = (Button) findViewById(R.id.btn_reset_location);
-        this.btnResetUuid = (Button) findViewById(R.id.btn_reset_uuid);
-
-        this.btnSelectPosition.setOnClickListener(this);
-        this.btnSelectUuid.setOnClickListener(this);
-        this.btnResetUuid.setOnClickListener(this);
-        this.btnResetLocation.setOnClickListener(this);
-
-        List<Location> locations = Location.listAll(Location.class);
-        location = new SpinnerAdapter(this,R.layout.spinner_entry,locations);
-        AppCompatSpinner spinnerLocations = (AppCompatSpinner) findViewById(R.id.spinnerLocation);
-        assert spinnerLocations != null;
-        spinnerLocations.setAdapter(location);
-
-        List<UUID>  list = UUID.listAll(UUID.class);
-        uuid = new SpinnerAdapterUuid(this,R.layout.spinner_entry,list);
-        AppCompatSpinner spinner = (AppCompatSpinner) findViewById(R.id.spinnerUuid);
-        assert spinner != null;
-        spinner.setAdapter(uuid);
-
-        this.btnSelectPosition.setMode(ActionProcessButton.Mode.ENDLESS);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) checkPermissions();
 
         try{
             mSettings.load();
@@ -122,7 +128,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 return false;
             }
         });
-
         chkIsActive.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -131,9 +136,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                     Log.d("isactive", String.valueOf(chkIsActive.isChecked()));
                     mSettings.save();
                     setInformation();
-
-                    Toast.makeText(getApplicationContext(), "Saved settings to file\n" + mSettings.toJson(), Toast.LENGTH_LONG).show();
-
+//                    Toast.makeText(getApplicationContext(), "Saved settings to file\n" + mSettings.toJson(), Toast.LENGTH_LONG).show();
                 } catch (JSONException | IOException e) {
                     xlog(e.getMessage());
                 }
@@ -141,6 +144,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         });
     }
 
+    @SuppressLint("SetTextI18n")
     private void setInformation(){
         TextView tvLat = (TextView) findViewById(R.id.tvLat);
         TextView tvLng = (TextView) findViewById(R.id.tvLng);
@@ -162,16 +166,58 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onClick(View v) {
         int viewID = v.getId();
-        if (viewID == this.btnSelectPosition.getId())
-            this.pickLocation();
-        else if (viewID == this.btnSelectUuid.getId()){
-            addUuid(R.layout.load_diag);
-        }else if (viewID == this.btnResetLocation.getId()){
+        if (viewID == this.btnSetPosition.getId()) {
+            Location l = (Location) spinnerLocations.getSelectedItem();
+            setSettingsFromPlace(l.getLat(), l.getLng());
+        } else if (viewID == this.btnSetUuid.getId()) {
+            UUID u = (UUID) spinnerUuid.getSelectedItem();
+            //TODO CALL SET UUID METHOD WITH UUID u
+        } else if (viewID == this.btnResetLocation.getId()) {
             mSettings.createDefaultFile(new File(Settings.settingsPath));
             setInformation();
         } else if(viewID == this.btnResetUuid.getId()){
-            //TODO RESET UUID
+            UUID u = UUID.findById(UUID.class, 1);
+            //TODO RESET UUID TO u
+        } else if (viewID == this.btnPickLocation.getId()) {
+            this.pickLocation();
+        } else if (viewID == this.btnAddUuid.getId()) {
+            addUuid(R.layout.load_diag);
+        } else if (viewID == btnRestartJodel.getId()) {
+            Device.Process process = RootFW.getProcess("com.tellm.android.app");
+            if (process.kill())
+                openApp(getApplicationContext(), "com.tellm.android.app");
+            Log.d("Killed", "Jodel!");
         }
+    }
+
+    private void init() {
+        this.btnSetPosition = (ActionProcessButton) findViewById(R.id.btn_select_position);
+        this.btnSetUuid = (ActionProcessButton) findViewById(R.id.btn_set_uuid);
+        this.btnPickLocation = (ActionProcessButton) findViewById(R.id.btn_add_location);
+        this.btnAddUuid = (ActionProcessButton) findViewById(R.id.btn_add_uuid);
+        this.btnResetLocation = (Button) findViewById(R.id.btn_reset_location);
+        this.btnResetUuid = (Button) findViewById(R.id.btn_reset_uuid);
+
+        this.btnSetPosition.setOnClickListener(this);
+        this.btnSetUuid.setOnClickListener(this);
+        this.btnResetUuid.setOnClickListener(this);
+        this.btnResetLocation.setOnClickListener(this);
+        this.btnAddUuid.setOnClickListener(this);
+        this.btnPickLocation.setOnClickListener(this);
+
+        locationList = Location.listAll(Location.class);
+        spinnerAdapterLocation = new SpinnerAdapterLocation(this, R.layout.spinner_entry, locationList);
+        spinnerLocations = (AppCompatSpinner) findViewById(R.id.spinnerLocation);
+        assert spinnerLocations != null;
+        spinnerLocations.setAdapter(spinnerAdapterLocation);
+
+        uuidList = UUID.listAll(UUID.class);
+        spinnerAdapterUuid = new SpinnerAdapterUuid(this, R.layout.spinner_entry, uuidList);
+        spinnerUuid = (AppCompatSpinner) findViewById(R.id.spinnerUuid);
+        assert spinnerUuid != null;
+        spinnerUuid.setAdapter(spinnerAdapterUuid);
+
+        this.btnSetPosition.setMode(ActionProcessButton.Mode.ENDLESS);
     }
 
     @Override
@@ -180,17 +226,9 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         MenuItem tbSwitch = menu.findItem(R.id.toggleservice);
         MenuItem button = menu.findItem(R.id.toggleservice);
         this.chkIsActive = (SwitchCompat) MenuItemCompat.getActionView(tbSwitch);
-        this.restartJodel = (Button) MenuItemCompat.getActionView(button);
-        this.restartJodel.setTextColor(Color.WHITE);
-        this.restartJodel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Device.Process process = RootFW.getProcess("com.tellm.android.app");
-                if (process.kill())
-                    openApp(getApplicationContext(), "com.tellm.android.app");
-                Log.d("Killed", "Jodel!");
-            }
-        });
+        this.btnRestartJodel = (Button) MenuItemCompat.getActionView(button);
+        this.btnRestartJodel.setTextColor(Color.WHITE);
+        this.btnRestartJodel.setOnClickListener(this);
         chkIsActive.setChecked(mSettings.isActive());
         setOnClickListener();
         return super.onCreateOptionsMenu(menu);
@@ -198,7 +236,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
     @TargetApi(Build.VERSION_CODES.M)
     private void checkPermissions(){
-        List<String> permissions = new ArrayList<String>();
+        List<String> permissions = new ArrayList<>();
         if( checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ) {
             permissions.add( Manifest.permission.WRITE_EXTERNAL_STORAGE );
         }
@@ -209,7 +247,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch ( requestCode ) {
             case REQUEST_CODE_PERMISSIONS: {
                 for( int i = 0; i < permissions.length; i++ ) {
@@ -217,6 +255,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                         Log.d("Permissions", "Permission Granted: " + permissions[i]);
                         setInformation();
                     } else if( grantResults[i] == PackageManager.PERMISSION_DENIED ) {
+                        //noinspection ConstantConditions
                         Snackbar snackbar = Snackbar
                                 .make(findViewById(R.id.scrollview), "Permission denied, this app wont work properly!", Snackbar.LENGTH_INDEFINITE)
                                 .setAction("Check that", new View.OnClickListener() {
@@ -243,6 +282,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
      * Open a Place picker, zoomed in on coordinates from settings
      */
     private void pickLocation(){
+        Log.d("pickLocation", "started");
         //Start place picker with these coordinates in the center
         double lat = mSettings.getLat();
         double lng = mSettings.getLng();
@@ -284,17 +324,19 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 xlog("data was null");
                 return;
             }
-            this.btnSelectPosition.setProgress(1);
+            this.btnSetPosition.setProgress(1);
             Place place = PlacePicker.getPlace(this, data);
             this.setSettingsFromPlace(place);
 
         }
     }
 
-    /**
-     * Extract location properties from place object and insert to the Settings-object, then save settings to file
-     * @param place
-     */
+    private void setSettingsFromPlace(double lat, double lng) {
+        mSettings.setLat(lat);
+        mSettings.setLng(lng);
+        new GeocoderAsync(lat, lng, this, this).execute();
+    }
+
     private void setSettingsFromPlace(Place place) {
         LatLng latlng = place.getLatLng();
         double lat = latlng.latitude;
@@ -311,7 +353,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     public void onGeoFinished(List<Address> addresses) {
         if(addresses == null){
             Toast.makeText(this, "No addresses nearby, unable to set location", Toast.LENGTH_SHORT).show();
-            this.btnSelectPosition.setProgress(-1); //error in geofetching
+            this.btnSetPosition.setProgress(-1); //error in geofetching
             resetProgress();
             return;
         }
@@ -345,6 +387,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             mSettings.setCountry(country);
             mSettings.setCountryCode(countryCode);
             save = true;
+            setInformation();
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Save location?").setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                 @Override
@@ -359,8 +402,9 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 }
             }).setNegativeButton("No",null).show();
             setInformation();
-            this.btnSelectPosition.setProgress(100);
+            this.btnSetPosition.setProgress(100);
             resetProgress();
+            //noinspection ConstantConditions
             Snackbar snackbar = Snackbar
                     .make(findViewById(R.id.scrollview), "For changes to take effect please restart Jodel!", Snackbar.LENGTH_LONG)
                     .setAction("Okay", null);
@@ -381,47 +425,49 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             Toast.makeText(getApplicationContext(), "Could not save location, try again", Toast.LENGTH_SHORT).show();
         }
     }
+
     private void resetProgress(){
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                btnSelectPosition.setProgress(0); //reset progress after 2,5sec
+                btnSetPosition.setProgress(0); //reset progress after 2,5sec
             }
         }, 2500);
-    }
-    public static boolean openApp(Context context, String packageName) {
-        PackageManager manager = context.getPackageManager();
-        try {
-            Intent i = manager.getLaunchIntentForPackage(packageName);
-            if (i == null) {
-                throw new PackageManager.NameNotFoundException();
-            }
-            i.addCategory(Intent.CATEGORY_LAUNCHER);
-            context.startActivity(i);
-            return true;
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
-        }
     }
 
     private void addUuid(int layout) {
         LayoutInflater inflater = getLayoutInflater();
-        View dialoglayout = inflater.inflate(layout, null);
+        View dialog = inflater.inflate(layout, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setView(dialoglayout);
-        final EditText etUuid = (EditText) dialoglayout.findViewById(R.id.editTextDiagUuid);
-        final EditText etName = (EditText) dialoglayout.findViewById(R.id.editTextDiagName);
-        builder.setPositiveButton("Change", new DialogInterface.OnClickListener() {
+        builder.setView(dialog);
+        final TextInputEditText etUuid = (TextInputEditText) dialog.findViewById(R.id.editTextDiagUuid);
+        final TextInputEditText etName = (TextInputEditText) dialog.findViewById(R.id.editTextDiagName);
+        builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if (!etName.getText().toString().trim().isEmpty() && !etUuid.getText().toString().trim().isEmpty()){
-                    new UUID(etUuid.getText().toString().trim(),etName.getText().toString().trim()).save();
+                if (!etName.getEditableText().toString().trim().isEmpty() && !etUuid.getEditableText().toString().trim().isEmpty()) {
+                    new UUID(etUuid.getEditableText().toString().trim(), etName.getEditableText().toString().trim()).save();
+                    notifyDataSetChanged();
+                    Toast.makeText(SettingsActivity.this, "Saved UUID", Toast.LENGTH_SHORT).show();
                 } else{
                     Toast.makeText(SettingsActivity.this, "Please fill all fields!", Toast.LENGTH_SHORT).show();
                 }
             }
-        });
+        }).setNegativeButton("Cancel", null).setTitle("Change UUID").setMessage("Please insert new name and correspondending UUID");
         builder.show();
+    }
+
+    public boolean notifyDataSetChanged() {
+        //TODO THIS IS NOT WOKING AT ALL, AND I FOUND NO WORKING WORKAROUND
+        uuidList = UUID.listAll(UUID.class);
+        locationList = Location.listAll(Location.class);
+        spinnerAdapterLocation = new SpinnerAdapterLocation(getApplicationContext(), R.layout.spinner_entry, locationList);
+        spinnerLocations.setAdapter(spinnerAdapterLocation);
+        spinnerAdapterLocation.notifyDataSetChanged();
+        spinnerAdapterUuid = new SpinnerAdapterUuid(this, R.layout.spinner_entry, uuidList);
+        spinnerUuid.setAdapter(spinnerAdapterUuid);
+        spinnerAdapterUuid.notifyDataSetChanged();
+        return true;
     }
 }

@@ -3,20 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/miProfile"
-        app:showAsAction="always"
-        android:title="Restart">
+        android:id="@+id/btn_restart_jodel"
+        android:title="Restart"
+        app:showAsAction="always">
     </item>
-
-    <!--<item
-        android:id="@+id/menuRestartJodel"
-        app:showAsAction="always"
-        android:title=""
-        android:actionLayout="@layout/restart_button"/>-->
-
     <item
         android:id="@+id/toggleservice"
+        android:title=""
         app:actionViewClass="android.support.v7.widget.SwitchCompat"
-        app:showAsAction="always"
-        android:title=""/>
+        app:showAsAction="always" />
 </menu>
