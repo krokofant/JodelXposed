@@ -27,8 +27,8 @@ import static de.robv.android.xposed.XposedHelpers.*;
 public class JodelHooks {
 
     public static class PhotoEditFragment {
-        public static String Post = "azw";
-        public static String ImageView = "azx";
+        public static String Post = "azA";
+        public static String ImageView = "azB";
         public static String Method = "Br";
     }
 
@@ -46,7 +46,7 @@ public class JodelHooks {
     }
 
     public static class RecyclerPostsAdapter$ViewHolder {
-        public static String TimeView = "aBJ";
+        public static String TimeView = "aBN";
     }
 
     public static class UDI {
