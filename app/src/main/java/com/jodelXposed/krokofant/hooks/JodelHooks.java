@@ -27,27 +27,30 @@ import static de.robv.android.xposed.XposedHelpers.*;
 public class JodelHooks {
 
     public static class PhotoEditFragment {
-        public static String Post = "azr";
-        public static String ImageView = "azs";
-        public static String Method = "BJ";
+        public static String Post = "azw";
+        public static String ImageView = "azx";
+        public static String Method = "Br";
     }
 
     public static class OkClient$2 {
-        public static String InputStream = "EK";
+        public static String InputStream = "Es";
+    }
+
+    public static class JodelImageHelper {
+        public static String Bitmap = "a";
     }
 
     public static class RecyclerPostsAdapter {
-        public static String Bitmap = "a";
         public static String TrackPoster = "a";
         public static String TrackOP = "o";
     }
 
     public static class RecyclerPostsAdapter$ViewHolder {
-        public static String TimeView = "aBQ";
+        public static String TimeView = "aBJ";
     }
 
     public static class UDI {
-        public static String GetUID = "As";
+        public static String GetUID = "Aa";
     }
 
 
@@ -148,7 +151,7 @@ public class JodelHooks {
         /**
          * Remove blur effect on posts
          */
-        findAndHookMethod("com.jodelapp.jodelandroidv3.view.adapter.RecyclerPostsAdapter", lpparam.classLoader, RecyclerPostsAdapter.Bitmap, Context.class, Bitmap.class, new XC_MethodReplacement() {
+        findAndHookMethod("com.jodelapp.jodelandroidv3.utilities.JodelImageHelper", lpparam.classLoader, JodelImageHelper.Bitmap, Context.class, Bitmap.class, new XC_MethodReplacement() {
             @Override
             protected Bitmap replaceHookedMethod(MethodHookParam param) throws Throwable {
                 return (Bitmap) param.args[1];
