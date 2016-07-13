@@ -2,7 +2,8 @@ package com.jodelXposed.krokofant.utils;
 
 import android.os.Environment;
 
-import com.jodelXposed.charliekelly.activities.SettingsActivity;
+
+import com.jodelXposed.BackgroundOperations;
 
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
@@ -169,7 +170,7 @@ public class Settings {
         //File file = new File(settingsPath);
         try {
             xlog(String.format("Writing %s to file", string));
-            SettingsActivity.currentlocation = string;
+            BackgroundOperations.currentlocation = string;
 
             FileOutputStream output = FileUtils.openOutputStream(file);
             output.write(string.getBytes());

@@ -1,57 +1,117 @@
 package com.jodelXposed.krokofant.hooks;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AndroidAppHelper;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+
 import com.jodelXposed.krokofant.utils.RequestReplacer;
 import com.jodelXposed.krokofant.utils.ResponseReplacer;
 import com.jodelXposed.krokofant.utils.Settings;
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XC_MethodReplacement;
-import de.robv.android.xposed.callbacks.XC_LoadPackage;
+
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XC_MethodReplacement;
+import de.robv.android.xposed.XposedHelpers;
+import de.robv.android.xposed.callbacks.XC_LoadPackage;
+
+import static android.R.layout.simple_list_item_1;
 import static com.jodelXposed.krokofant.utils.Bitmap.loadBitmap;
 import static com.jodelXposed.krokofant.utils.Log.xlog;
-import static de.robv.android.xposed.XposedHelpers.*;
+import static de.robv.android.xposed.XposedHelpers.callMethod;
+import static de.robv.android.xposed.XposedHelpers.callStaticMethod;
+import static de.robv.android.xposed.XposedHelpers.findAndHookConstructor;
+import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
+import static de.robv.android.xposed.XposedHelpers.findClass;
+import static de.robv.android.xposed.XposedHelpers.getAdditionalInstanceField;
+import static de.robv.android.xposed.XposedHelpers.getObjectField;
+import static de.robv.android.xposed.XposedHelpers.setAdditionalInstanceField;
+import static de.robv.android.xposed.XposedHelpers.setObjectField;
 
 public class JodelHooks {
 
     public static class PhotoEditFragment {
-        public static String Post = "azr";
-        public static String ImageView = "azs";
-        public static String Method = "BJ";
+        public static String Bitmap = "aAq";
+        public static String ImageView = "aAj";
+        public static String Method = "BF";
     }
 
     public static class OkClient$2 {
-        public static String InputStream = "EK";
+        public static String InputStream = "EU";
     }
 
     public static class RecyclerPostsAdapter {
-        public static String Bitmap = "a";
         public static String TrackPoster = "a";
-        public static String TrackOP = "o";
+        public static String TrackOP = "r";
+    }
+
+    public static class JodelImageHelper{
+        public static String Bitmap = "a";
     }
 
     public static class RecyclerPostsAdapter$ViewHolder {
-        public static String TimeView = "aBQ";
+        public static String TimeView = "aCE";
     }
 
     public static class UDI {
-        public static String GetUID = "As";
+        public static String GetUID = "Ap";
     }
 
 
-    public void hook(XC_LoadPackage.LoadPackageParam lpparam) {
+    /**
+     * These are the only accepted Colors by the Jodel Server, credits to pydel by rolsdorph
+     */
+    public static class Colors {
+        public static ArrayList<String> Colors = new ArrayList<String>(){{
+            add("#FFFF9908"); //Orange
+            add("#FFFFBA00"); //Yellow
+            add("#FFDD5F5F"); //Red
+            add("#FF06A3CB"); //Blue
+            add("#FF8ABDB0"); //Bluegrayish
+            add("#FF9EC41C"); //Green
+        }};
+    }
+
+    public static class CreateTextPostFragment{
+        public static String color = "axY";
+        public static int BackgroundViewId = 2131689666;
+        public static int ImageViewCamera = 2131689669;
+    }
+
+    public static class MyMenuItem{
+        public static String displayName = "aAh";
+        public static String RandomIntValue = "aAi";
+    }
+
+    public static class MyMenuFragment {
+        public static String AddEntriesMethod = "BA";
+    }
+
+
+    public void hook(final XC_LoadPackage.LoadPackageParam lpparam) {
         /**
          * Add features on ImageView - load custom stored image, adjust ScaleType
          */
@@ -60,8 +120,7 @@ public class JodelHooks {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 
                 final boolean[] isInjected = {false};
-                Object o = getObjectField(param.thisObject, PhotoEditFragment.Post);
-                final Bitmap original = (Bitmap) getObjectField(o, "imageBitmap");
+                final Bitmap original = (Bitmap) getObjectField(param.thisObject, PhotoEditFragment.Bitmap);
                 ImageView a = (ImageView) getObjectField(param.thisObject, PhotoEditFragment.ImageView);
 
                 a.setOnLongClickListener(new View.OnLongClickListener() {
@@ -148,7 +207,7 @@ public class JodelHooks {
         /**
          * Remove blur effect on posts
          */
-        findAndHookMethod("com.jodelapp.jodelandroidv3.view.adapter.RecyclerPostsAdapter", lpparam.classLoader, RecyclerPostsAdapter.Bitmap, Context.class, Bitmap.class, new XC_MethodReplacement() {
+        findAndHookMethod("com.jodelapp.jodelandroidv3.utilities.JodelImageHelper", lpparam.classLoader, JodelImageHelper.Bitmap, Context.class, Bitmap.class, new XC_MethodReplacement() {
             @Override
             protected Bitmap replaceHookedMethod(MethodHookParam param) throws Throwable {
                 return (Bitmap) param.args[1];
@@ -198,6 +257,7 @@ public class JodelHooks {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 String bodyString = IOUtils.toString((InputStream) callMethod(param.args[0], OkClient$2.InputStream), "UTF-8");
+                xlog(bodyString);
                 setAdditionalInstanceField(param.thisObject, "bodyString", bodyString);
             }
         });
@@ -294,16 +354,21 @@ public class JodelHooks {
                 HashMap<String, String> ids = new HashMap<>(posts.size());
 
                 for(Object post : posts) {
-                    String user_handle = (String)getObjectField(post, "user_handle");
+                    String user_handle = (String)getObjectField(post, "userHandle");
                     if(!ids.containsKey(user_handle)) {
                         ids.put(user_handle, String.valueOf(ids.size()));
                     }
                     setAdditionalInstanceField(post, "updateExtraPost", ids.get(user_handle));
                 }
 
-                int i = (int)param.args[1];
-                String id = (String)getAdditionalInstanceField(posts.get(i), "updateExtraPost");
-                setAdditionalInstanceField(textView, "updateExtraView", id);
+                try {
+                    int i = (int)param.args[1];
+                    String id = (String)getAdditionalInstanceField(posts.get(i), "updateExtraPost");
+                    setAdditionalInstanceField(textView, "updateExtraView", id);
+                }catch(IndexOutOfBoundsException ignored){
+                    //In case you reached the last available post (found on Mt. Everest)
+                }
+
             }
         });
 
@@ -319,5 +384,141 @@ public class JodelHooks {
                 callMethod(param.thisObject, "append", " #" + id);
             }
         });
+
+        /**
+         * Post-background color
+         * Instantiate a chooser button / dialog beside the Camera button
+         */
+        findAndHookMethod("com.jodelapp.jodelandroidv3.view.CreateTextPostFragment", lpparam.classLoader, "onCreateView",LayoutInflater.class, ViewGroup.class, Bundle.class, new XC_MethodHook() {
+            @SuppressWarnings("ResourceType")
+            @Override
+            protected void afterHookedMethod(final MethodHookParam param) throws Throwable {
+
+                final Activity activity = (Activity) callMethod(param.thisObject,"getActivity");
+
+                final Button color = new Button(activity);
+                color.setText("Choose\ncolor");
+                color.setBackgroundColor(Color.TRANSPARENT);
+                color.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, simple_list_item_1, new String[] { "ORANGE", "YELLOW", "RED", "BLUE", "BLUEGRAYISH", "GREEN" });
+                        new AlertDialog.Builder(activity).setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
+                            @SuppressWarnings("ResourceType")
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                //Set background color
+                                ((View)param.getResult()).findViewById(CreateTextPostFragment.BackgroundViewId).setBackgroundColor(Color.parseColor(Colors.Colors.get(which)));
+                                //set instance field
+                                XposedHelpers.setObjectField(param.thisObject,CreateTextPostFragment.color,Colors.Colors.get(which));
+                                dialog.dismiss();
+                            }
+                        }).show();
+                    }
+                });
+
+                LinearLayout linearLayout = (LinearLayout) ((View)param.getResult()).findViewById(CreateTextPostFragment.ImageViewCamera).getParent();
+                linearLayout.addView(color);
+                linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+
+            }
+        });
+
+        /* *
+        * Hook constructor of MyMenuItem to apply strings (Item names) which are not in strings.xml
+        * Seamless integration #1
+        * */
+        findAndHookConstructor("com.jodelapp.jodelandroidv3.view.MyMenuItem", lpparam.classLoader,Context.class,String.class,int.class, new XC_MethodReplacement() {
+            @Override
+            protected Object replaceHookedMethod(MethodHookParam methodHookParam) throws Throwable {
+                setObjectField(methodHookParam.thisObject,"name",methodHookParam.args[1]);
+                try {
+                    setObjectField(methodHookParam.thisObject,MyMenuItem.displayName, AndroidAppHelper.currentApplication().getResources().getString((int)methodHookParam.args[2]));
+                }catch(Exception e){
+                    switch ((int)methodHookParam.args[2]){
+                        case 0:
+                            setObjectField(methodHookParam.thisObject,MyMenuItem.displayName,"Location info");
+                            break;
+                        case 1:
+                            setObjectField(methodHookParam.thisObject,MyMenuItem.displayName,"Choose location");
+                            break;
+                        case 2:
+                            setObjectField(methodHookParam.thisObject,MyMenuItem.displayName,"Reset location");
+                            break;
+                        case 3:
+                            setObjectField(methodHookParam.thisObject,MyMenuItem.displayName,"Restart Jodel");
+                            break;
+                    }
+                }
+                setObjectField(methodHookParam.thisObject,MyMenuItem.RandomIntValue,-1);
+                return null;
+            }
+        });
+
+        /**
+         * Add JodelXposed entries in ListView
+         * Seamless integration #2
+         */
+        findAndHookMethod("com.jodelapp.jodelandroidv3.view.MyMenuFragment", lpparam.classLoader, MyMenuFragment.AddEntriesMethod, new XC_MethodHook() {
+            @SuppressWarnings("unchecked")
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+
+                Class<?> MyMenuItem = findClass("com.jodelapp.jodelandroidv3.view.MyMenuItem",lpparam.classLoader);
+                final Activity activity = (Activity) callMethod(param.thisObject,"getActivity");
+                Object xposedLocationInformationItem = XposedHelpers.newInstance(MyMenuItem,activity,"xposedInfo", 0);
+                Object xposedMapItem = XposedHelpers.newInstance(MyMenuItem,activity,"xposedMap", 1);
+                Object xposedResetItem = XposedHelpers.newInstance(MyMenuItem,activity,"xposedReset", 2);
+                Object xposedRestartItem = XposedHelpers.newInstance(MyMenuItem,activity,"xposedRestart", 3);
+                ArrayAdapter myMenuItemArrayAdapter = (ArrayAdapter) XposedHelpers.callMethod(param.thisObject,"getListAdapter");
+                myMenuItemArrayAdapter.add(xposedLocationInformationItem);
+                myMenuItemArrayAdapter.add(xposedMapItem);
+                myMenuItemArrayAdapter.add(xposedResetItem);
+                myMenuItemArrayAdapter.add(xposedRestartItem);
+                myMenuItemArrayAdapter.notifyDataSetChanged();
+
+            }
+        });
+
+        /**
+         * Add JodelXposed entries in ListView - Handle clicks on Items
+         * Seamless integration #3
+         */
+        findAndHookMethod("com.jodelapp.jodelandroidv3.view.MyMenuFragment", lpparam.classLoader, "onListItemClick", ListView.class, View.class, int.class, long.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                Object selected = ((ArrayAdapter) XposedHelpers.callMethod(param.thisObject,"getListAdapter")).getItem(((int)param.args[2])-1);
+                xlog((String)getObjectField(selected,"name"));
+
+                Object activityThread = callStaticMethod(findClass("android.app.ActivityThread", null), "currentActivityThread");
+                Context context = (Context) callMethod(activityThread, "getSystemContext");
+                Intent launchIntent = new Intent(Intent.ACTION_MAIN);
+                launchIntent.setComponent(new ComponentName("com.jodelXposed", "com.jodelXposed.BackgroundOperations"));
+                launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                if (((String)getObjectField(selected,"name")).equalsIgnoreCase("xposedMap")){
+                    context.startActivity(launchIntent.putExtra("choice",1));
+                }else if (((String)getObjectField(selected,"name")).equalsIgnoreCase("xposedReset")){
+                    context.startActivity(launchIntent.putExtra("choice",2));
+                }else if (((String)getObjectField(selected,"name")).equalsIgnoreCase("xposedRestart")){
+                    context.startActivity(launchIntent.putExtra("choice",3));
+                } else if (((String)getObjectField(selected,"name")).equalsIgnoreCase("xposedInfo")){
+                    final Activity activity = (Activity) callMethod(param.thisObject,"getActivity");
+                    Settings settings = Settings.getInstance();
+                    new AlertDialog.Builder(activity).setTitle("Location info")
+                        .setMessage("City: "+settings.getCity()
+                            +"\nCountry: "+settings.getCountry()
+                            +"\nLat: "+settings.getLat()
+                            +"\nLng: "+settings.getLng())
+                        .setPositiveButton("Yarrr", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                    }).show();
+                }
+            }
+        });
+
     }
 }

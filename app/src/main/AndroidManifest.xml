@@ -7,6 +7,7 @@
 
     <application android:allowBackup="false"
         tools:replace="label"
+        android:exported="true"
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
         android:supportsRtl="true"
@@ -44,14 +45,9 @@
             </intent-filter>
         </activity>
 
-        <activity
-                android:name=".charliekelly.activities.SettingsActivity"
-                android:label="@string/title_activity_settings"
-                android:screenOrientation="portrait">
-
+        <activity android:name=".BackgroundOperations"
+            android:theme="@style/TransparentTheme">
             <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER"/>
-
                 <action android:name="android.intent.action.MAIN"/>
             </intent-filter>
         </activity>

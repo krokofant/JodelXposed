@@ -9,4 +9,6 @@
     <string name="feature_description">GPS Override \nIf problems with the GPS - restart the Jodel app. Make sure the feature is activated in the Jodel Xposed app. \n \nOPs posts are faded a little bit darker \n \nUploading images \n1. Share an image to Jodel Xposed \n2. Take a picture like normal in Jodel and then long press the image to change to the shared one \n3. Press Volume down to toggle scaling method \n4. If any problems make sure the app has Read/Write access</string>
     <string name="reset_defaults">Reset Defaults</string>
     <string name="restart_jodel">Restart Jodel</string>
+    <string name="appName">JodelXposed</string>
+    <string name="xposed">jodelXposed</string>
 </resources>
