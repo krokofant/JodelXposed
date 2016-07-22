@@ -26,7 +26,6 @@ import com.spazedog.lib.rootfw4.utils.Device;
 
 import org.json.JSONException;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +67,7 @@ public class BackgroundOperations extends AppCompatActivity implements GeocoderA
                 break;
             case 3:
                 restartJodel();
+                finish();
                 break;
         }
 
@@ -129,6 +129,7 @@ public class BackgroundOperations extends AppCompatActivity implements GeocoderA
         } catch (Exception ex) {
             xlog("Error opening maps:");
             xlog(ex.getMessage());
+            finish();
         }
     }
 
@@ -189,6 +190,7 @@ public class BackgroundOperations extends AppCompatActivity implements GeocoderA
     public void onGeoFinished(List<Address> addresses) {
         if (addresses == null) {
             Toast.makeText(this, "No addresses nearby, unable to set location", Toast.LENGTH_SHORT).show();
+            finish();
             return;
         }
 
@@ -234,6 +236,7 @@ public class BackgroundOperations extends AppCompatActivity implements GeocoderA
                 xlog(e.getLocalizedMessage());
             }
             restartJodel();
+            finish();
 
         } else {
             Toast.makeText(getApplicationContext(), "Could not save location, try again", Toast.LENGTH_SHORT).show();

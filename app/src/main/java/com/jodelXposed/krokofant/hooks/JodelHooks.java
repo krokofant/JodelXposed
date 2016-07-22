@@ -53,14 +53,16 @@ import static de.robv.android.xposed.XposedHelpers.setObjectField;
 
 public class JodelHooks {
 
+    Settings settings = Settings.getInstance();
+
     public static class PhotoEditFragment {
-        public static String Bitmap = "aAq";
-        public static String ImageView = "aAj";
-        public static String Method = "BF";
+        public static String Bitmap = "aAs";
+        public static String ImageView = "aAl";
+        public static String Method = "BI";
     }
 
     public static class OkClient$2 {
-        public static String InputStream = "EU";
+        public static String InputStream = "EZ";
     }
 
     public static class RecyclerPostsAdapter {
@@ -73,11 +75,11 @@ public class JodelHooks {
     }
 
     public static class RecyclerPostsAdapter$ViewHolder {
-        public static String TimeView = "aCE";
+        public static String TimeView = "aCL";
     }
 
     public static class UDI {
-        public static String GetUID = "Ap";
+        public static String GetUID = "Ar";
     }
 
 
@@ -96,18 +98,26 @@ public class JodelHooks {
     }
 
     public static class CreateTextPostFragment{
-        public static String color = "axY";
-        public static int BackgroundViewId = 2131689666;
-        public static int ImageViewCamera = 2131689669;
+        public static String color = "axZ";
+        public static int BackgroundViewId = 2131689668;
+        public static int ImageViewCamera = 2131689671;
     }
 
     public static class MyMenuItem{
-        public static String displayName = "aAh";
-        public static String RandomIntValue = "aAi";
+        public static String displayName = "aAj";
+        public static String RandomIntValue = "aAk";
     }
 
     public static class MyMenuFragment {
-        public static String AddEntriesMethod = "BA";
+        public static String AddEntriesMethod = "BD";
+    }
+
+    public static class FeedFragment {
+        public static String UpdateCityName = "dw";
+    }
+
+    public static class Storage {
+        public static String UnlockFeatures = "cU";
     }
 
 
@@ -322,7 +332,6 @@ public class JodelHooks {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 xlog("UDI = " + param.getResult());
-                Settings settings = Settings.getInstance();
                 try {
                     if (!settings.isLoaded())
                         settings.load();
@@ -437,13 +446,10 @@ public class JodelHooks {
                 }catch(Exception e){
                     switch ((int)methodHookParam.args[2]){
                         case 0:
-                            setObjectField(methodHookParam.thisObject,MyMenuItem.displayName,"Location info");
+                            setObjectField(methodHookParam.thisObject,MyMenuItem.displayName,"Xposed general");
                             break;
                         case 1:
                             setObjectField(methodHookParam.thisObject,MyMenuItem.displayName,"Choose location");
-                            break;
-                        case 2:
-                            setObjectField(methodHookParam.thisObject,MyMenuItem.displayName,"Reset location");
                             break;
                         case 3:
                             setObjectField(methodHookParam.thisObject,MyMenuItem.displayName,"Restart Jodel");
@@ -486,7 +492,6 @@ public class JodelHooks {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 Object selected = ((ArrayAdapter) XposedHelpers.callMethod(param.thisObject,"getListAdapter")).getItem(((int)param.args[2])-1);
-                xlog((String)getObjectField(selected,"name"));
 
                 Object activityThread = callStaticMethod(findClass("android.app.ActivityThread", null), "currentActivityThread");
                 final Context context = (Context) callMethod(activityThread, "getSystemContext");
@@ -500,12 +505,23 @@ public class JodelHooks {
                     context.startActivity(launchIntent.putExtra("choice",3));
                 } else if (((String)getObjectField(selected,"name")).equalsIgnoreCase("xposedInfo")){
                     final Activity activity = (Activity) callMethod(param.thisObject,"getActivity");
-                    Settings settings = Settings.getInstance();
                     new AlertDialog.Builder(activity).setTitle("Location info")
                         .setMessage("City: "+settings.getCity()
                             +"\nCountry: "+settings.getCountry()
                             +"\nLat: "+settings.getLat()
                             +"\nLng: "+settings.getLng())
+                        .setNeutralButton(settings.isActive() ? "Disable Xposed" : "Enable Xposed", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                settings.setActive(!settings.isActive());
+                                try {
+                                    settings.save();
+                                } catch (IOException | JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                context.startActivity(launchIntent.putExtra("choice",3));
+                            }
+                        })
                         .setNegativeButton("Reset", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -520,6 +536,29 @@ public class JodelHooks {
                 }
             }
         });
+
+        /* *
+        * Display the correct city name on the sliding tab strip
+        * */
+        findAndHookMethod("com.jodelapp.jodelandroidv3.view.FeedFragment", lpparam.classLoader, FeedFragment.UpdateCityName, String.class, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                if (settings.isActive())
+                    param.args[0] = settings.getCity();
+            }
+        });
+
+        /* *
+        * Unlock experiments (features that are available on some devices like post pining or searching for hashtags)
+        * */
+        findAndHookMethod("com.jodelapp.jodelandroidv3.model.Storage", lpparam.classLoader, Storage.UnlockFeatures, String.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                if (settings.isActive())
+                    param.setResult(true);
+            }
+        });
+
 
     }
 }
