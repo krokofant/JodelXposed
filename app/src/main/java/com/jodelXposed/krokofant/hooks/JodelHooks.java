@@ -3,6 +3,7 @@ package com.jodelXposed.krokofant.hooks;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AndroidAppHelper;
+import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,7 +31,6 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -127,61 +127,62 @@ public class JodelHooks {
         public static String ChannelsLimit = "Ag";
     }
 
+    public static class JodelApp {
+        public static String FirstMethod = "yU";
+        public static String SecondMethod = "yV";
+    }
+
 
     public void hook(final XC_LoadPackage.LoadPackageParam lpparam) {
 
-        findAndHookMethod("com.jodelapp.jodelandroidv3.JodelApp", lpparam.classLoader, "onCreate", new XC_MethodReplacement() {
-            @Override
-            protected Object replaceHookedMethod(MethodHookParam methodHookParam) throws Throwable {
-                Class<?> CrashlyticsCoreBuilder = findClass("com.crashlytics.android.core.CrashlyticsCore.Builder",lpparam.classLoader);
-                Class<?> CrashlyticsBuilder = findClass("com.crashlytics.android.Crashlytics.Builder",lpparam.classLoader);
-                final Class<?> Kit = findClass("io.fabric.sdk.android.Kit",lpparam.classLoader);
-                Class<?> Fabric = findClass("io.fabric.sdk.android.Fabric",lpparam.classLoader);
+        try {
+        /* *
+        * Disable the xposed check and all crash reporters #1
+        * @JodelCreators hopefully you dont get any anoying crash reports anymore :)
+        * */
+            findAndHookMethod("com.jodelapp.jodelandroidv3.JodelApp", lpparam.classLoader, "onCreate", new XC_MethodReplacement() {
+                @Override
+                protected Object replaceHookedMethod(MethodHookParam methodHookParam) throws Throwable {
+                    Class<?> CrashlyticsCoreBuilder = findClass("com.crashlytics.android.core.CrashlyticsCore.Builder",lpparam.classLoader);
+                    Class<?> CrashlyticsBuilder = findClass("com.crashlytics.android.Crashlytics.Builder",lpparam.classLoader);
+                    final Class<?> Kit = findClass("io.fabric.sdk.android.Kit",lpparam.classLoader);
+                    Class<?> Fabric = findClass("io.fabric.sdk.android.Fabric",lpparam.classLoader);
 
-                // CrashlyticsCore core = new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build();
-                Object coreBuilderInstance = newInstance(CrashlyticsCoreBuilder);
-                callMethod(coreBuilderInstance,"disabled",true);
-                Object crashlyticsCore = callMethod(coreBuilderInstance,"build");
+                    // CrashlyticsCore core = new CrashlyticsCore.Builder().disabled(true).build();
+                    Object coreBuilderInstance = newInstance(CrashlyticsCoreBuilder);
+                    callMethod(coreBuilderInstance,"disabled",true);
+                    Object crashlyticsCore = callMethod(coreBuilderInstance,"build");
 
-                // Crashlytics crashlytics = new Crashlytics.Builder().core(core).build()
-                Object crashlyticsBuilderInstance = newInstance(CrashlyticsBuilder);
-                callMethod(crashlyticsBuilderInstance,"core",crashlyticsCore);
-                final Object crashlyticsInstance = callMethod(crashlyticsBuilderInstance,"build");
+                    // Crashlytics crashlytics = new Crashlytics.Builder().core(core).build()
+                    Object crashlyticsBuilderInstance = newInstance(CrashlyticsBuilder);
+                    callMethod(crashlyticsBuilderInstance,"core",crashlyticsCore);
+                    final Object crashlyticsInstance = callMethod(crashlyticsBuilderInstance,"build");
 
+                    Object kits = Array.newInstance(Kit,1);
+                    Array.set(kits,0,crashlyticsInstance);
+                    callStaticMethod(Fabric,"a",methodHookParam.thisObject, kits );
 
-                Object kits = Array.newInstance(Kit,1);
-                Array.set(kits,0,crashlyticsInstance);
-
-                //get all methods from Fabric
-                for(Method m : Fabric.getMethods()){
-                    //check for method name "a"
-                    if (m.getName().equalsIgnoreCase("a")){
-                        //check for 2 params
-                        xlog(String.valueOf(m.getParameterTypes().length));
-                        if (m.getParameterTypes().length == 2){
-                            for (Class<?> c : m.getParameterTypes()){
-                                xlog(c.getName());
-                            }
-                            // Fabric.with(this, crashlytics);
-                            //noinspection RedundantArrayCreation,RedundantCast
-                            m.invoke(Fabric, new Object[] {(Context)methodHookParam.thisObject, kits } );
-                        }
-                    }
+                    callMethod(methodHookParam.thisObject,JodelApp.FirstMethod);
+                    callMethod(methodHookParam.thisObject,JodelApp.SecondMethod);
+                    return null;
                 }
-
-                callMethod(methodHookParam.thisObject,"yU");
-                callMethod(methodHookParam.thisObject,"yV");
-                return null;
-            }
-        });
+            });
 
 
-        findAndHookConstructor("com.jodelapp.jodelandroidv3.api.ApiModule", lpparam.classLoader, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                setObjectField(param.thisObject,"ANALYTICS_URL","");
-            }
-        });
+        /* *
+        * Disable the xposed check and all crash reporters #2
+        * @JodelCreators hopefully you dont get any anoying crash reports anymore :)
+        * */
+            findAndHookConstructor("com.jodelapp.jodelandroidv3.api.ApiModule", lpparam.classLoader, Application.class, new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    setObjectField(param.thisObject,"ANALYTICS_URL","");
+                }
+            });
+
+        }catch(Exception ignored){
+            //Only for 4.12.3 users
+        }
 
         /**
          * Add features on ImageView - load custom stored image, adjust ScaleType
