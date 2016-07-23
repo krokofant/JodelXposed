@@ -29,6 +29,8 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +50,7 @@ import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 import static de.robv.android.xposed.XposedHelpers.findClass;
 import static de.robv.android.xposed.XposedHelpers.getAdditionalInstanceField;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
+import static de.robv.android.xposed.XposedHelpers.newInstance;
 import static de.robv.android.xposed.XposedHelpers.setAdditionalInstanceField;
 import static de.robv.android.xposed.XposedHelpers.setObjectField;
 
@@ -126,6 +129,53 @@ public class JodelHooks {
 
 
     public void hook(final XC_LoadPackage.LoadPackageParam lpparam) {
+
+        findAndHookMethod("com.jodelapp.jodelandroidv3.JodelApp", lpparam.classLoader, "onCreate", new XC_MethodReplacement() {
+            @Override
+            protected Object replaceHookedMethod(MethodHookParam methodHookParam) throws Throwable {
+                Class<?> CrashlyticsCoreBuilder = findClass("com.crashlytics.android.core.CrashlyticsCore.Builder",lpparam.classLoader);
+                Class<?> CrashlyticsBuilder = findClass("com.crashlytics.android.Crashlytics.Builder",lpparam.classLoader);
+                final Class<?> Kit = findClass("io.fabric.sdk.android.Kit",lpparam.classLoader);
+                Class<?> Fabric = findClass("io.fabric.sdk.android.Fabric",lpparam.classLoader);
+
+                // CrashlyticsCore core = new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build();
+                Object coreBuilderInstance = newInstance(CrashlyticsCoreBuilder);
+                callMethod(coreBuilderInstance,"disabled",true);
+                Object crashlyticsCore = callMethod(coreBuilderInstance,"build");
+
+                // Crashlytics crashlytics = new Crashlytics.Builder().core(core).build()
+                Object crashlyticsBuilderInstance = newInstance(CrashlyticsBuilder);
+                callMethod(crashlyticsBuilderInstance,"core",crashlyticsCore);
+                final Object crashlyticsInstance = callMethod(crashlyticsBuilderInstance,"build");
+
+
+                Object kits = Array.newInstance(Kit,1);
+                Array.set(kits,0,crashlyticsInstance);
+
+                //get all methods from Fabric
+                for(Method m : Fabric.getMethods()){
+                    //check for method name "a"
+                    if (m.getName().equalsIgnoreCase("a")){
+                        //check for 2 params
+                        xlog(String.valueOf(m.getParameterTypes().length));
+                        if (m.getParameterTypes().length == 2){
+                            for (Class<?> c : m.getParameterTypes()){
+                                xlog(c.getName());
+                            }
+                            // Fabric.with(this, crashlytics);
+                            //noinspection RedundantArrayCreation,RedundantCast
+                            m.invoke(Fabric, new Object[] {(Context)methodHookParam.thisObject, kits } );
+                        }
+                    }
+                }
+
+                callMethod(methodHookParam.thisObject,"yU");
+                callMethod(methodHookParam.thisObject,"yV");
+                return null;
+            }
+        });
+
+
         /**
          * Add features on ImageView - load custom stored image, adjust ScaleType
          */
