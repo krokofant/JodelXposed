@@ -176,6 +176,13 @@ public class JodelHooks {
         });
 
 
+        findAndHookConstructor("com.jodelapp.jodelandroidv3.api.ApiModule", lpparam.classLoader, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                setObjectField(param.thisObject,"ANALYTICS_URL","");
+            }
+        });
+
         /**
          * Add features on ImageView - load custom stored image, adjust ScaleType
          */
