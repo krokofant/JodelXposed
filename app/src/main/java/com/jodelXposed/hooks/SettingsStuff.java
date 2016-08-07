@@ -120,7 +120,6 @@ public class SettingsStuff {
                 public void onClick(DialogInterface dialogInterface, int i) {
                     location.setActive(!location.isActive());
                     Options.getInstance().save();
-                    getSystemContext().startActivity(launchIntent.putExtra("choice", 3));
                 }
             })
             .setNegativeButton("Reset", new DialogInterface.OnClickListener() {

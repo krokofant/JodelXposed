@@ -38,6 +38,9 @@ public class Options extends FileObserver {
     }
 
     public Location getLocationObject(){
+        if (options == null){
+            load();
+        }
         return this.options.location;
     }
 
