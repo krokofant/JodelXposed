@@ -1,13 +1,12 @@
-package com.jodelXposed.krokofant.utils;
+package com.jodelXposed.utils;
 
 import org.apache.commons.io.Charsets;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.regex.Pattern;
 
-import static com.jodelXposed.krokofant.utils.Log.xlog;
+import static com.jodelXposed.utils.Log.xlog;
 
 public class RequestReplacer {
     public static Pattern[] processables = {
@@ -28,48 +27,43 @@ public class RequestReplacer {
     }
 
     public static String processURL(String url) {
-        Settings settings = Settings.getInstance();
-        try {
-            if (!settings.isLoaded())
-                settings.load();
+        Options options = Options.getInstance();
 
-            if (!settings.isActive()) {
-                xlog("Feature not active");
-                return url;
-            }
-            url = url.replaceAll("lat=\\d+\\.\\d+", "lat=" + String.valueOf(settings.getLat()));
-            url = url.replaceAll("lng=\\d+\\.\\d+", "lng=" + String.valueOf(settings.getLng()));
-        } catch (JSONException | IOException e) {
-            xlog("Error: " + e.getLocalizedMessage());
+        if (!options.getLocationObject().isActive()) {
+            xlog("Feature not active");
+            return url;
         }
+        url = url.replaceAll("lat=\\d+\\.\\d+", "lat=" + String.valueOf(options.getLocationObject().getLat()));
+        url = url.replaceAll("lng=\\d+\\.\\d+", "lng=" + String.valueOf(options.getLocationObject().getLng()));
+        xlog("Url processed");
         return url;
     }
 
     public static byte[] processBody(byte[] jsonBytes) {
-        Settings settings = Settings.getInstance();
-        try {
-            if (!settings.isLoaded())
-                settings.load();
+        Options options = Options.getInstance();
 
-            if (!settings.isActive()) {
+            if (!options.getLocationObject().isActive()) {
                 xlog("Feature not active");
                 return jsonBytes;
             }
 
+        try {
             JSONObject jsonObject = new JSONObject(new String(jsonBytes));
             JSONObject location = jsonObject
                 .getJSONObject("location")
-                .put("country", settings.getCountry())
-                .put("name", settings.getCity())
-                .put("city", settings.getCity());
+                .put("country", options.getLocationObject().getCountry())
+                .put("name", options.getLocationObject().getCity())
+                .put("city", options.getLocationObject().getCity());
             location.getJSONObject("loc_coordinates")
-                .put("lat", settings.getLat())
-                .put("lng", settings.getLng());
+                .put("lat", options.getLocationObject().getLat())
+                .put("lng", options.getLocationObject().getLng());
             xlog("Place JSON: " + jsonObject.toString());
+            xlog("Body processed");
             return jsonObject.toString().getBytes(Charsets.UTF_8);
-        } catch (JSONException | IOException e) {
-            xlog("Error: " + e.getLocalizedMessage());
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+
         return jsonBytes;
     }
 }
