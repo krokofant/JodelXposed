@@ -118,7 +118,7 @@ public class SettingsStuff {
         });
     }
 
-    private void openDialog(Activity activity, final Intent launchIntent) {
+    private void openDialog(final Activity activity, final Intent launchIntent) {
 
         LayoutInflater inflater = activity.getLayoutInflater();
         View dialoglayout = inflater.inflate(App.dialogMainView, null);
