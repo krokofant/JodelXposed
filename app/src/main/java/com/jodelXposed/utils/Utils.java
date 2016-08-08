@@ -1,6 +1,9 @@
-package com.jodelXposed.krokofant.utils;
+package com.jodelXposed.utils;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Environment;
 
 import java.util.ArrayList;
 
@@ -9,6 +12,8 @@ import static de.robv.android.xposed.XposedHelpers.callStaticMethod;
 import static de.robv.android.xposed.XposedHelpers.findClass;
 
 public class Utils {
+    public static String SettingsPath = Environment.getExternalStorageDirectory() + "/.jodel-settings-v2";
+
     public static Context getSystemContext() {
         Object activityThread = callStaticMethod(findClass("android.app.ActivityThread", null), "currentActivityThread");
         return (Context) callMethod(activityThread, "getSystemContext");
@@ -26,5 +31,20 @@ public class Utils {
             add("#FF8ABDB0"); //Bluegrayish
             add("#FF9EC41C"); //Green
         }};
+    }
+
+    public static boolean openApp(Context context, String packageName) {
+        PackageManager manager = context.getPackageManager();
+        try {
+            Intent i = manager.getLaunchIntentForPackage(packageName);
+            if (i == null) {
+                throw new PackageManager.NameNotFoundException();
+            }
+            i.addCategory(Intent.CATEGORY_LAUNCHER);
+            context.startActivity(i);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.jodelXposed.krokofant.activities;
+package com.jodelXposed.activities;
 
 import android.Manifest;
 import android.app.Activity;
@@ -10,12 +10,14 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
+
 import com.jodelXposed.R;
+import com.jodelXposed.utils.Utils;
 
 import java.io.IOException;
 
-import static com.jodelXposed.krokofant.utils.Bitmap.saveBitmap;
-import static com.jodelXposed.krokofant.utils.Log.xlog;
+import static com.jodelXposed.utils.Bitmap.saveBitmap;
+import static com.jodelXposed.utils.Log.xlog;
 
 public class ShareActivity extends Activity {
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -36,7 +38,6 @@ public class ShareActivity extends Activity {
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             if (type.startsWith("image/")) {
-                // Request permission
                 verifyStoragePermissions();
             }
         } else {
@@ -57,8 +58,12 @@ public class ShareActivity extends Activity {
                 xlog("Error accessing file: " + e.getLocalizedMessage());
             }
         }
+        Utils.openApp(this, "com.tellm.android.app");
         finish();
     }
+
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {

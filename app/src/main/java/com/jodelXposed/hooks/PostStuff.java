@@ -1,4 +1,4 @@
-package com.jodelXposed.krokofant.features;
+package com.jodelXposed.hooks;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -11,17 +11,23 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedHelpers;
-import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 import java.util.HashMap;
 import java.util.List;
 
+import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XposedHelpers;
+import de.robv.android.xposed.callbacks.XC_LoadPackage;
+
 import static android.R.layout.simple_list_item_1;
-import static com.jodelXposed.krokofant.utils.Log.xlog;
-import static com.jodelXposed.krokofant.utils.Utils.Colors.Colors;
-import static de.robv.android.xposed.XposedHelpers.*;
+import static com.jodelXposed.utils.Log.xlog;
+import static com.jodelXposed.utils.Utils.Colors.Colors;
+import static de.robv.android.xposed.XposedHelpers.callMethod;
+import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
+import static de.robv.android.xposed.XposedHelpers.getAdditionalInstanceField;
+import static de.robv.android.xposed.XposedHelpers.getObjectField;
+import static de.robv.android.xposed.XposedHelpers.setAdditionalInstanceField;
+import static de.robv.android.xposed.XposedHelpers.setObjectField;
 
 public class PostStuff {
     private static class RecyclerPostsAdapter {

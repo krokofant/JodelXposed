@@ -1,6 +1,7 @@
-package com.jodelXposed.krokofant.features;
+package com.jodelXposed.hooks;
 
-import com.jodelXposed.krokofant.utils.Settings;
+import com.jodelXposed.utils.Options;
+
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
@@ -20,8 +21,7 @@ public class BetaStuff {
         findAndHookMethod("com.jodelapp.jodelandroidv3.model.Storage", lpparam.classLoader, Storage.UnlockFeatures, String.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                Settings settings = Settings.getInstance();
-                if (settings.isActive())
+                if (Options.getInstance().getLocationObject().isActive())
                     param.setResult(true);
             }
         });

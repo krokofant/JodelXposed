@@ -1,11 +1,19 @@
-package com.jodelXposed.krokofant.utils;
+package com.jodelXposed.utils;
 
-import android.graphics.*;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.os.Environment;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
-import static com.jodelXposed.krokofant.utils.Log.xlog;
+import static com.jodelXposed.utils.Log.xlog;
 
 public final class Bitmap {
     public static String jodelImagePath = Environment.getExternalStorageDirectory() + "/.jodel-input.jpg";

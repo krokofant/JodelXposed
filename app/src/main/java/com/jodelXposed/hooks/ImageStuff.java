@@ -1,4 +1,4 @@
-package com.jodelXposed.krokofant.features;
+package com.jodelXposed.hooks;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -9,8 +9,8 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-import static com.jodelXposed.krokofant.utils.Bitmap.loadBitmap;
-import static com.jodelXposed.krokofant.utils.Log.xlog;
+import static com.jodelXposed.utils.Bitmap.loadBitmap;
+import static com.jodelXposed.utils.Log.xlog;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
 

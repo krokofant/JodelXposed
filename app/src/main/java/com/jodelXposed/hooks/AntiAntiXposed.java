@@ -1,14 +1,21 @@
-package com.jodelXposed.krokofant.features;
+package com.jodelXposed.hooks;
 
 import android.app.Application;
+
+import java.lang.reflect.Array;
+
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-import java.lang.reflect.Array;
-
-import static com.jodelXposed.krokofant.utils.Log.xlog;
-import static de.robv.android.xposed.XposedHelpers.*;
+import static com.jodelXposed.utils.Log.xlog;
+import static de.robv.android.xposed.XposedHelpers.callMethod;
+import static de.robv.android.xposed.XposedHelpers.callStaticMethod;
+import static de.robv.android.xposed.XposedHelpers.findAndHookConstructor;
+import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
+import static de.robv.android.xposed.XposedHelpers.findClass;
+import static de.robv.android.xposed.XposedHelpers.newInstance;
+import static de.robv.android.xposed.XposedHelpers.setObjectField;
 
 public class AntiAntiXposed {
     private static class JodelApp {
@@ -18,9 +25,23 @@ public class AntiAntiXposed {
 
     public AntiAntiXposed(final XC_LoadPackage.LoadPackageParam lpparam) {
         try {
+
             /*
              * Disable the xposed check and all crash reporters #1
              * @JodelCreators hopefully you dont get any anoying crash reports anymore :)
+             * Let the Thread.currentThread.getStacktracke() return a empty StackTraceElementArray
+             */
+            findAndHookMethod("java.lang.Thread", lpparam.classLoader, "getStackTrace", new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    param.setResult(new StackTraceElement[]{});
+                }
+            });
+
+            /*
+             * Disable the xposed check and all crash reporters #2
+             * @JodelCreators hopefully you dont get any anoying crash reports anymore :)
+             * Replicate the JodelApp.onCreate() and disable the crash reporter
              */
             findAndHookMethod("com.jodelapp.jodelandroidv3.JodelApp", lpparam.classLoader, "onCreate", new XC_MethodReplacement() {
                 @Override
@@ -52,8 +73,9 @@ public class AntiAntiXposed {
 
 
             /*
-             * Disable the xposed check and all crash reporters #2
+             * Disable the xposed check and all crash reporters #3
              * @JodelCreators hopefully you dont get any anoying crash reports anymore :)
+             * Remove the Analytics URL so there cant be sent any Analytics reports anymore
              */
             findAndHookConstructor("com.jodelapp.jodelandroidv3.api.ApiModule", lpparam.classLoader, Application.class, new XC_MethodHook() {
                 @Override
