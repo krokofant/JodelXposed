@@ -8,17 +8,14 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
-import com.jodelXposed.R;
 import com.jodelXposed.models.Location;
-import com.permissioneverywhere.PermissionEverywhere;
-import com.permissioneverywhere.PermissionResponse;
-import com.permissioneverywhere.PermissionResultCallback;
 import com.schibstedspain.leku.LocationPickerActivity;
 
-import static com.jodelXposed.utils.Utils.getSystemContext;
+import static com.jodelXposed.utils.Log.xlog;
 
 
 public class PlacePicker extends Activity {
@@ -31,30 +28,22 @@ public class PlacePicker extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Location location = Options.getInstance().getLocationObject();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!permissionsGranted()){
+                this.requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.WRITE_EXTERNAL_STORAGE},PERMISSION_REQUEST_CODE);
+            }
+        }
 
+        if (permissionsGranted()){
+            getAction();
+        }
+
+    }
+
+    private void getAction(){
         switch (getIntent().getIntExtra("choice",0)){
             case 1:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !permissionsGranted()) {
-                    PermissionEverywhere.getPermission(getApplicationContext(),
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        PERMISSION_REQUEST_CODE,
-                        "JodelXposed",
-                        "This app needs a write permission",
-                        R.mipmap.ic_launcher)
-                        .enqueue(new PermissionResultCallback() {
-                            @Override
-                            public void onComplete(PermissionResponse permissionResponse) {
-                                Toast.makeText(getSystemContext(), "is Granted " + permissionResponse.isGranted(), Toast.LENGTH_LONG).show();
-                            }
-                        });
-
-                } else{
-                    Intent intent = new Intent(this, LocationPickerActivity.class);
-                    intent.putExtra(LocationPickerActivity.LATITUDE, location.getLat());
-                    intent.putExtra(LocationPickerActivity.LONGITUDE, location.getLng());
-                    startActivityForResult(intent, PLACEPICKER_REQUEST_CODE);
-                }
+                startLocationPicker();
                 break;
             case 2:
                 Options.getInstance().resetLocation();
@@ -63,17 +52,26 @@ public class PlacePicker extends Activity {
             default:
                 finish();
         }
+    }
 
+    private void startLocationPicker() {
+        Location location = Options.getInstance().getLocationObject();
+        Intent intent = new Intent(this, LocationPickerActivity.class);
+        intent.putExtra(LocationPickerActivity.LATITUDE, location.getLat());
+        intent.putExtra(LocationPickerActivity.LONGITUDE, location.getLng());
+        startActivityForResult(intent, PLACEPICKER_REQUEST_CODE);
     }
 
 
     @TargetApi(Build.VERSION_CODES.M)
     private boolean permissionsGranted(){
-        return this.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED;
+        return this.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+            && this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        xlog("ActivityResult called");
         if (requestCode == PLACEPICKER_REQUEST_CODE) {
             if(resultCode == Activity.RESULT_OK){
                 Options op = Options.getInstance();
@@ -92,10 +90,22 @@ public class PlacePicker extends Activity {
 
                 finish();
 
-
             }
             if (resultCode == Activity.RESULT_CANCELED) {
+                xlog("Cancelled");
                 finish();
+            }
+        }
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_CODE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getAction();
+                }else{
+                    Toast.makeText(getApplicationContext(), "This app needs permissions in order to work", Toast.LENGTH_LONG).show();
+                }
             }
         }
     }

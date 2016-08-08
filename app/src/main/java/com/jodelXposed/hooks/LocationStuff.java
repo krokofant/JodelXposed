@@ -22,6 +22,9 @@ import static de.robv.android.xposed.XposedHelpers.setAdditionalInstanceField;
 import static de.robv.android.xposed.XposedHelpers.setObjectField;
 
 public class LocationStuff {
+
+
+
     private static class OkClient$2 {
         static String InputStream = "EZ";
     }
@@ -88,6 +91,15 @@ public class LocationStuff {
         findAndHookMethod("com.jodelapp.jodelandroidv3.view.FeedFragment", lpparam.classLoader, FeedFragment.UpdateCityName, String.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                if (Options.getInstance().getLocationObject().isActive())
+                    param.args[0] = Options.getInstance().getLocationObject().getCity();
+            }
+        });
+
+        findAndHookMethod("com.jodelapp.jodelandroidv3.view.FeedFragment", lpparam.classLoader, FeedFragment.UpdateCityName, String.class, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
+
                 if (Options.getInstance().getLocationObject().isActive())
                     param.args[0] = Options.getInstance().getLocationObject().getCity();
             }
