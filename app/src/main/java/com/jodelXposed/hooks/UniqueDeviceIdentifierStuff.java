@@ -10,7 +10,7 @@ import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
 public class UniqueDeviceIdentifierStuff {
     private static class UDI {
-        static String GetUID = "Ar";
+        static String GetUID = "Aq";
     }
 
     /**

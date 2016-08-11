@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
+
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
@@ -16,9 +17,9 @@ import static de.robv.android.xposed.XposedHelpers.getObjectField;
 
 public class ImageStuff {
     private static class PhotoEditFragment {
-        static String Bitmap = "aAs";
-        static String ImageView = "aAl";
-        static String Method = "BI";
+        static String Bitmap = "aAo";
+        static String ImageView = "aAh";
+        static String Method = "BK";
     }
 
     private static class JodelImageHelper {

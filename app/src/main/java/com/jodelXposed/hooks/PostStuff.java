@@ -36,13 +36,11 @@ public class PostStuff {
     }
 
     private static class CreateTextPostFragment {
-        static String color = "axZ";
-        static int BackgroundViewId = 2131689668;
-        static int ImageViewCamera = 2131689671;
+        static String color = "axU";
     }
 
     private static class RecyclerPostsAdapter$ViewHolder {
-        static String TimeView = "aCL";
+        static String TimeView = "aCH";
     }
 
     public PostStuff(XC_LoadPackage.LoadPackageParam lpparam) {
@@ -58,8 +56,8 @@ public class PostStuff {
                     for (Object post : posts) {
                         String color = (String) getObjectField(post, "color");
                         Integer parentCreator = (Integer) getObjectField(post, "parentCreator");
-//                        String message = (String) getObjectField(post, "message");
-//                        xlog("Message:" + message + " Parent:" + parentCreator + " Color:" + color);
+                        String message = (String) getObjectField(post, "message");
+                        xlog("Message:" + message + " Parent:" + parentCreator + " Color:" + color);
                         if (parentCreator != null && parentCreator == 1) {
                             float[] hsv = new float[3];
                             int c = Color.parseColor("#" + color);
@@ -128,6 +126,8 @@ public class PostStuff {
 
                 final Activity activity = (Activity) callMethod(param.thisObject, "getActivity");
 
+                final int id = activity.getResources().getIdentifier("cameraButton", "id", "com.tellm.android.app");
+
                 final Button color = new Button(activity);
                 color.setText("Choose\ncolor");
                 color.setBackgroundColor(Color.TRANSPARENT);
@@ -140,7 +140,7 @@ public class PostStuff {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 //Set background color
-                                ((View) param.getResult()).findViewById(CreateTextPostFragment.BackgroundViewId).setBackgroundColor(Color.parseColor(Colors.get(which)));
+                                ((View) ((View) param.getResult()).findViewById(id).getParent().getParent()).setBackgroundColor(Color.parseColor(Colors.get(which)));
                                 //set instance field
                                 XposedHelpers.setObjectField(param.thisObject, CreateTextPostFragment.color, Colors.get(which));
                                 dialog.dismiss();
@@ -149,7 +149,7 @@ public class PostStuff {
                     }
                 });
 
-                LinearLayout linearLayout = (LinearLayout) ((View) param.getResult()).findViewById(CreateTextPostFragment.ImageViewCamera).getParent();
+                LinearLayout linearLayout = (LinearLayout) ((View) param.getResult()).findViewById(id).getParent();
                 linearLayout.addView(color);
                 linearLayout.setOrientation(LinearLayout.HORIZONTAL);
 

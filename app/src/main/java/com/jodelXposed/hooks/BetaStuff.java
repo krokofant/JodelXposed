@@ -1,7 +1,5 @@
 package com.jodelXposed.hooks;
 
-import com.jodelXposed.utils.Options;
-
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
@@ -17,12 +15,12 @@ public class BetaStuff {
     }
 
     public BetaStuff(XC_LoadPackage.LoadPackageParam lpparam) {
+
         // Unlock experiments (features that are available on some devices like post pining or searching for hashtags)
         findAndHookMethod("com.jodelapp.jodelandroidv3.model.Storage", lpparam.classLoader, Storage.UnlockFeatures, String.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (Options.getInstance().getBetaObject().isActive())
-                    param.setResult(true);
+                param.setResult(true);
             }
         });
 
