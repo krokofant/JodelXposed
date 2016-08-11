@@ -1,0 +1,31 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:key="pref_category_location"
+        android:title="Location">
+
+        <SwitchPreference
+            android:key="switch_location"
+            android:title="Location enabled" />
+
+        <Preference
+            android:key="button_choose_location"
+            android:title="Choose location" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="pref_category_udi"
+        android:title="UDI">
+
+        <SwitchPreference
+            android:key="switch_udi"
+            android:title="UDI spoofing enabled" />
+
+        <Preference
+            android:key="button_edit_udi"
+            android:title="Edit UDI" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

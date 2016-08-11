@@ -2,11 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
               android:layout_height="match_parent" android:weightSum="1"
-              tools:context=".krokofant.activities.ShareActivity">
+    tools:context=".activities.ShareActivity">
 
     <ImageView
             android:layout_width="match_parent"
             android:layout_height="309dp"
-            android:id="@+id/imageView" android:src="@drawable/ewok"
-    />
+        android:contentDescription="placeholderImage"
+        android:src="@drawable/ewok" />
 </LinearLayout>

@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.jodelXposed.models.Location;
@@ -18,7 +19,7 @@ import com.schibstedspain.leku.LocationPickerActivity;
 import static com.jodelXposed.utils.Log.xlog;
 
 
-public class PlacePicker extends Activity {
+public class PlacePicker extends AppCompatActivity {
 
 
     private static final int PERMISSION_REQUEST_CODE = 201;

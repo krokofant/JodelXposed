@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo;
 import com.jodelXposed.hooks.AntiAntiXposed;
 import com.jodelXposed.hooks.BetaStuff;
 import com.jodelXposed.hooks.ImageStuff;
+import com.jodelXposed.hooks.LayoutHooks;
 import com.jodelXposed.hooks.LocationStuff;
 import com.jodelXposed.hooks.PostStuff;
 import com.jodelXposed.hooks.SettingsStuff;
@@ -29,11 +30,11 @@ public class App implements IXposedHookLoadPackage,IXposedHookZygoteInit, IXpose
     @SuppressLint("DefaultLocale")
     @Override
     public void handleLoadPackage(final LoadPackageParam lpparam) throws Throwable {
-            if (!lpparam.packageName.equals("com.tellm.android.app"))
-                return;
+        if (!lpparam.packageName.equals("com.tellm.android.app"))
+            return;
 
-            if (lpparam.packageName.equals("com.tellm.android.app")) {
-                PackageInfo pkgInfo = getSystemContext().getPackageManager().getPackageInfo(lpparam.packageName, 0);
+        if (lpparam.packageName.equals("com.tellm.android.app")) {
+            PackageInfo pkgInfo = getSystemContext().getPackageManager().getPackageInfo(lpparam.packageName, 0);
             xlog(String.format("----------%n" +
                     "Starting JodelXposed%n" +
                     "Version %s (%d)%n" +
@@ -47,18 +48,18 @@ public class App implements IXposedHookLoadPackage,IXposedHookZygoteInit, IXpose
                 pkgInfo.versionName,
                 pkgInfo.versionCode
             ));
-                Options.getInstance().load();
+            Options.getInstance().load();
 
-                xlog("Loading hooks");
-                new AntiAntiXposed(lpparam);
-                new BetaStuff(lpparam);
-                new ImageStuff(lpparam);
-                new LocationStuff(lpparam);
-                new PostStuff(lpparam);
-                new SettingsStuff(lpparam);
-                new UniqueDeviceIdentifierStuff(lpparam);
+            xlog("Loading hooks");
+            new AntiAntiXposed(lpparam);
+            new BetaStuff(lpparam);
+            new ImageStuff(lpparam);
+            new LocationStuff(lpparam);
+            new PostStuff(lpparam);
+            new SettingsStuff(lpparam);
+            new UniqueDeviceIdentifierStuff(lpparam);
 
-            }
+        }
     }
 
     @Override
@@ -66,6 +67,7 @@ public class App implements IXposedHookLoadPackage,IXposedHookZygoteInit, IXpose
         if (!resparam.packageName.equals("com.tellm.android.app"))
             return;
 
+        xlog("Adding resources");
         new LayoutHooks().hook(resparam);
     }
 

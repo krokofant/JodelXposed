@@ -7,16 +7,16 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
     </style>
 
-    <style name="TransparentTheme" parent="@style/Theme.AppCompat">
+    <style name="TransparentTheme" parent="@style/Theme.AppCompat.NoActionBar">
 
         <item name="android:background">@android:color/transparent</item>
         <item name="background">@android:color/transparent</item>
 
-        <item name="android:windowBackground">@null</item>
-        <item name="android:colorBackgroundCacheHint">@null</item>
-        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackgroundCacheHint">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@android:color/transparent</item>
         <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowAnimationStyle">@android:color/transparent</item>
     </style>
 
 </resources>

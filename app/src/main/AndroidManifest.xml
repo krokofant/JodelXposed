@@ -69,6 +69,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".utils.PlacePicker" />
         </activity>
+        <activity
+            android:exported="true"
+            android:name=".activities.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            tools:ignore="ExportedPreferenceActivity" />
     </application>
 
 </manifest>

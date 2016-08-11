@@ -1,11 +1,15 @@
 package com.jodelXposed.utils;
 
+import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Environment;
 
 import java.util.ArrayList;
+
+import de.robv.android.xposed.XC_MethodHook;
 
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.callStaticMethod;
@@ -19,6 +23,16 @@ public class Utils {
         return (Context) callMethod(activityThread, "getSystemContext");
     }
 
+    public static Activity getActivity(XC_MethodHook.MethodHookParam param) {
+        return (Activity) callMethod(param.thisObject, "getActivity");
+    }
+
+    public static Intent getNewIntent(String path) {
+        Intent launchIntent = new Intent(Intent.ACTION_MAIN);
+        launchIntent.setComponent(new ComponentName("com.jodelXposed", "com.jodelXposed." + path));
+        launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        return launchIntent;
+    }
     /**
      * These are the only accepted Colors by the Jodel Server, credits to pydel by rolsdorph
      */
