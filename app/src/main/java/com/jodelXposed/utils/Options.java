@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import static com.jodelXposed.utils.Log.dlog;
 import static com.jodelXposed.utils.Log.xlog;
 import static com.jodelXposed.utils.Utils.SettingsPath;
 
@@ -89,11 +90,29 @@ public class Options extends FileObserver {
     }
 
     public void load() {
-        xlog("Loading settings file");
+        dlog("Loading settings file");
         try {
             String json = FileUtils.readFileToString(settingsFile, Charsets.UTF_8);
             options = jsonAdapter.fromJson(json);
-            xlog(json);
+//            if (!options.udi.getUdis().containsKey("default")){
+//                options.udi.getUdis().put("default",options.udi.getUdi());
+//            }
+            dlog(
+                    "++++ Beta: ++++"
+                    +"\n             Enabled: "+options.beta.isActive()
+
+                    +"\n             ++++ Location: ++++"
+                    +"\n             Enabled: "+options.location.isActive()
+                    +"\n             Country: "+options.location.getCountry()
+                    +"\n             Countrycode: "+options.location.getCountryCode()
+                    +"\n             City: "+options.location.getCity()
+                    +"\n             Latitude: "+options.location.getLat()
+                    +"\n             Longitude: "+options.location.getLng()
+
+                    +"\n             ++++ UDI: ++++"
+                    +"\n             Enabled: "+options.udi.isActive()
+                    +"\n             UDI: "+options.udi.getUdi()
+            );
 
         } catch (IOException e) {
             xlog("Could not load options file");

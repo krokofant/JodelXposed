@@ -6,6 +6,9 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.jodelXposed.utils.Hooks;
+import com.jodelXposed.utils.Hooks.SettingsStuff.MyMenuItem;
+
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XposedHelpers;
@@ -21,20 +24,13 @@ import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static de.robv.android.xposed.XposedHelpers.setObjectField;
 
 public class SettingsStuff {
-    private static class MyMenuItem {
-        static String displayName = "aAf";
-        static String RandomIntValue = "aAg";
-    }
-
-    private static class MyMenuFragment {
-        static String AddEntriesMethod = "BD";
-    }
 
     public SettingsStuff(final XC_LoadPackage.LoadPackageParam lpparam) {
         /*
          * Hook constructor of MyMenuItem to apply strings (Item names) which are not in strings.xml
          * Seamless integration #1
          */
+
         findAndHookConstructor("com.jodelapp.jodelandroidv3.view.MyMenuItem", lpparam.classLoader, Context.class, String.class, int.class, new XC_MethodReplacement() {
             @Override
             protected Object replaceHookedMethod(MethodHookParam methodHookParam) throws Throwable {
@@ -54,7 +50,7 @@ public class SettingsStuff {
          * Add JodelXposed entries in ListView
          * Seamless integration #2
          */
-        findAndHookMethod("com.jodelapp.jodelandroidv3.view.MyMenuFragment", lpparam.classLoader, MyMenuFragment.AddEntriesMethod, new XC_MethodHook() {
+        findAndHookMethod("com.jodelapp.jodelandroidv3.view.MyMenuFragment", lpparam.classLoader, Hooks.SettingsStuff.MyMenuFragment.AddEntriesMethod, new XC_MethodHook() {
             @SuppressWarnings("unchecked")
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {

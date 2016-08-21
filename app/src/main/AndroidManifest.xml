@@ -47,7 +47,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".utils.PlacePicker"
+        <activity android:name=".utils.Picker"
             android:theme="@style/TransparentTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -59,7 +59,7 @@
             android:label="@string/title_activity_location_picker"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:windowSoftInputMode="adjustPan"
-            android:parentActivityName=".utils.PlacePicker">
+            android:parentActivityName=".utils.Picker">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -67,13 +67,15 @@
                 android:resource="@xml/searchable" />
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".utils.PlacePicker" />
+                android:value=".utils.Picker" />
         </activity>
         <activity
             android:exported="true"
             android:name=".activities.SettingsActivity"
             android:label="@string/title_activity_settings"
             tools:ignore="ExportedPreferenceActivity" />
+
+        <activity android:name="com.github.pedrovgs.lynx.LynxActivity"/>
     </application>
 
 </manifest>

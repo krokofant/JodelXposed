@@ -58,9 +58,9 @@ public class Location {
     }
 
     boolean active = false;
-    public String city = "Heard and McDonald Islands";
-    public String country = "Heard and McDonald Islands";
-    public String countryCode = "AU";
-    public float lat = -53.076499f;
-    public float lng = 73.37357f;
+    public String city = "";
+    public String country = "";
+    public String countryCode = "";
+    public float lat = 0;
+    public float lng = 0;
 }

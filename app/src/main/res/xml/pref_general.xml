@@ -22,9 +22,29 @@
             android:key="switch_udi"
             android:title="UDI spoofing enabled" />
 
-        <Preference
+        <EditTextPreference
             android:key="button_edit_udi"
             android:title="Edit UDI" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="pref_category_beta_features"
+        android:title="Beta features">
+
+        <SwitchPreference
+            android:key="switch_beta"
+            android:title="Beta features enabled" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="pref_category_logcat"
+        android:title="Logcat">
+
+        <Preference
+            android:key="button_logcat"
+            android:title="Show logcat" />
 
     </PreferenceCategory>
 

@@ -1,5 +1,6 @@
 package com.jodelXposed.hooks;
 
+import com.jodelXposed.utils.Hooks;
 import com.jodelXposed.utils.Options;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -9,15 +10,12 @@ import static com.jodelXposed.utils.Log.xlog;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
 public class UniqueDeviceIdentifierStuff {
-    private static class UDI {
-        static String GetUID = "Aq";
-    }
 
     /**
      * Spoof UID
      */
     public UniqueDeviceIdentifierStuff(XC_LoadPackage.LoadPackageParam lpparam) {
-        findAndHookMethod("com.jodelapp.jodelandroidv3.utilities.UniqueDeviceIdentifier", lpparam.classLoader, UDI.GetUID, new XC_MethodHook() {
+        findAndHookMethod("com.jodelapp.jodelandroidv3.utilities.UniqueDeviceIdentifier", lpparam.classLoader, Hooks.UDI.GetUID, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 String realUDI = (String) param.getResult();

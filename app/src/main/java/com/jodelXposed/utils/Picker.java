@@ -5,7 +5,9 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.location.Address;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -16,12 +18,16 @@ import android.widget.Toast;
 import com.jodelXposed.models.Location;
 import com.schibstedspain.leku.LocationPickerActivity;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+
 import static com.jodelXposed.utils.Log.xlog;
 
 
-public class PlacePicker extends AppCompatActivity {
+public class Picker extends AppCompatActivity {
 
 
+    private static final int GALLERY_REQUEST_CODE = 202;
     private static final int PERMISSION_REQUEST_CODE = 201;
     private static final int PLACEPICKER_REQUEST_CODE = 200;
 
@@ -31,7 +37,7 @@ public class PlacePicker extends AppCompatActivity {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!permissionsGranted()){
-                this.requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.WRITE_EXTERNAL_STORAGE},PERMISSION_REQUEST_CODE);
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.WRITE_EXTERNAL_STORAGE},PERMISSION_REQUEST_CODE);
             }
         }
 
@@ -50,9 +56,18 @@ public class PlacePicker extends AppCompatActivity {
                 Options.getInstance().resetLocation();
                 finish();
                 break;
+            case 3:
+                galleryPicker();
+                break;
             default:
                 finish();
         }
+    }
+
+    private void galleryPicker() {
+        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+        photoPickerIntent.setType("image/*");
+        startActivityForResult(photoPickerIntent, GALLERY_REQUEST_CODE);
     }
 
     private void startLocationPicker() {
@@ -73,30 +88,34 @@ public class PlacePicker extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         xlog("ActivityResult called");
-        if (requestCode == PLACEPICKER_REQUEST_CODE) {
-            if(resultCode == Activity.RESULT_OK){
-                Options op = Options.getInstance();
-
-                op.getLocationObject().setLat(data.getDoubleExtra(LocationPickerActivity.LATITUDE, 0));
-                op.getLocationObject().setLng(data.getDoubleExtra(LocationPickerActivity.LONGITUDE, 0));
-
-                Address fullAddress = data.getParcelableExtra(LocationPickerActivity.ADDRESS);
-
-                op.getLocationObject().setCity(fullAddress.getLocality());
-                op.getLocationObject().setCountry(fullAddress.getCountryName());
-                op.getLocationObject().setCountryCode(fullAddress.getCountryCode());
-
-                op.save();
-                Toast.makeText(PlacePicker.this, "Success, please refresh your feed!", Toast.LENGTH_LONG).show();
-
-                finish();
-
+        if (resultCode == Activity.RESULT_OK){
+            switch (requestCode){
+                case PLACEPICKER_REQUEST_CODE:
+                    Options op = Options.getInstance();
+                    op.getLocationObject().setLat(data.getDoubleExtra(LocationPickerActivity.LATITUDE, 0));
+                    op.getLocationObject().setLng(data.getDoubleExtra(LocationPickerActivity.LONGITUDE, 0));
+                    Address fullAddress = data.getParcelableExtra(LocationPickerActivity.ADDRESS);
+                    op.getLocationObject().setCity(fullAddress.getLocality());
+                    op.getLocationObject().setCountry(fullAddress.getCountryName());
+                    op.getLocationObject().setCountryCode(fullAddress.getCountryCode());
+                    op.save();
+                    Toast.makeText(Picker.this, "Success, please refresh your feed!", Toast.LENGTH_LONG).show();
+                    break;
+                case GALLERY_REQUEST_CODE:
+                    try {
+                        final Uri imageUri = data.getData();
+                        final InputStream imageStream = getContentResolver().openInputStream(imageUri);
+                        final android.graphics.Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+                        Bitmap.saveBitmap(selectedImage);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    break;
             }
-            if (resultCode == Activity.RESULT_CANCELED) {
-                xlog("Cancelled");
-                finish();
-            }
+        }else{
+            Toast.makeText(Picker.this, "Failed / Cancelled", Toast.LENGTH_LONG).show();
         }
+        finish();
     }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {

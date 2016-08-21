@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Environment;
+import android.view.Display;
+import android.view.WindowManager;
 
 import java.util.ArrayList;
 
@@ -25,6 +27,22 @@ public class Utils {
 
     public static Activity getActivity(XC_MethodHook.MethodHookParam param) {
         return (Activity) callMethod(param.thisObject, "getActivity");
+    }
+
+    public static int getDisplayHeight(){
+        return Utils.getSystemContext().getResources().getDisplayMetrics().heightPixels;
+    }
+
+    public static int getDisplayWidth(){
+        return Utils.getSystemContext().getResources().getDisplayMetrics().widthPixels;
+    }
+
+    public static Display getDefaultDisplay(){
+        return ((WindowManager)Utils.getSystemContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+    }
+
+    public static int getIdentifierById(XC_MethodHook.MethodHookParam param , String id){
+        return getActivity(param).getResources().getIdentifier(id, "id", "com.tellm.android.app");
     }
 
     public static Intent getNewIntent(String path) {

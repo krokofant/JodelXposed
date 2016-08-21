@@ -25,9 +25,8 @@ public final class Bitmap {
     }
 
     public static void saveBitmap(android.graphics.Bitmap bitmap) {
-        xlog("Saving bitmap of size: " + bitmap.getByteCount());
-
         try {
+            xlog("Saving bitmap of size: " + bitmap.getByteCount());
             FileOutputStream fos = new FileOutputStream(new File(jodelImagePath));
             bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 100, fos);
             fos.close();

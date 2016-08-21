@@ -12,6 +12,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import com.jodelXposed.utils.Hooks;
+import com.jodelXposed.utils.Utils;
+
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 
@@ -20,7 +24,6 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 import static android.R.layout.simple_list_item_1;
-import static com.jodelXposed.utils.Log.xlog;
 import static com.jodelXposed.utils.Utils.Colors.Colors;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
@@ -30,56 +33,45 @@ import static de.robv.android.xposed.XposedHelpers.setAdditionalInstanceField;
 import static de.robv.android.xposed.XposedHelpers.setObjectField;
 
 public class PostStuff {
-    private static class RecyclerPostsAdapter {
-        static String TrackPoster = "a";
-        static String TrackOP = "r";
-    }
-
-    private static class CreateTextPostFragment {
-        static String color = "axU";
-    }
-
-    private static class RecyclerPostsAdapter$ViewHolder {
-        static String TimeView = "aCH";
-    }
 
     public PostStuff(XC_LoadPackage.LoadPackageParam lpparam) {
-        /*
-         * Apply darker shade to OP's posts in a thread
-         */
-        findAndHookMethod("com.jodelapp.jodelandroidv3.view.adapter.RecyclerPostsAdapter", lpparam.classLoader, RecyclerPostsAdapter.TrackOP, List.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                List posts = (List) param.args[0];
-                if (posts != null) {
-                    xlog("Posts: " + posts.size());
-                    for (Object post : posts) {
-                        String color = (String) getObjectField(post, "color");
-                        Integer parentCreator = (Integer) getObjectField(post, "parentCreator");
-                        String message = (String) getObjectField(post, "message");
-                        xlog("Message:" + message + " Parent:" + parentCreator + " Color:" + color);
-                        if (parentCreator != null && parentCreator == 1) {
-                            float[] hsv = new float[3];
-                            int c = Color.parseColor("#" + color);
-                            Color.colorToHSV(c, hsv);
-                            hsv[2] *= 0.9f;
-                            c = Color.HSVToColor(hsv);
-                            setObjectField(post, "color", Integer.toHexString(c).substring(2));
-                        }
-                    }
-                }
-            }
-        });
 
         /*
          * Track posts #1
          * Set additional data on the TimeView of each Post to track the
          * user_handle / poster
+         * Apply darker shade to OP's posts in a thread
          */
-        findAndHookMethod("com.jodelapp.jodelandroidv3.view.adapter.RecyclerPostsAdapter", lpparam.classLoader, RecyclerPostsAdapter.TrackPoster, "com.jodelapp.jodelandroidv3.view.adapter.RecyclerPostsAdapter$ViewHolder", int.class, new XC_MethodHook() {
+        findAndHookMethod("com.jodelapp.jodelandroidv3.view.adapter.RecyclerPostsAdapter", lpparam.classLoader, Hooks.PostStuff.RecyclerPostsAdapter.TrackPoster, "com.jodelapp.jodelandroidv3.view.adapter.RecyclerPostsAdapter$ViewHolder", int.class, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                try {
+                    List posts = (List) callMethod(param.thisObject, "getPosts");
+                    Object post =  posts.get((int)param.args[1]);
+
+                    if (getObjectField(post,"replierMark") != null && getObjectField(post,"replierMark").equals("OP")){
+                        String color = (String) getObjectField(post, "color");
+                        float[] hsv = new float[3];
+                        int c = Color.parseColor("#" + color);
+                        Color.colorToHSV(c, hsv);
+                        hsv[2] *= 0.8f;
+                        c = Color.HSVToColor(hsv);
+
+                        if (getAdditionalInstanceField(post,"newColor")== null){
+                            setAdditionalInstanceField(post,"newColor",Integer.toHexString(c).substring(2));
+                            setObjectField(post, "color", Integer.toHexString(c).substring(2));
+                        }
+
+                    }
+                } catch (IndexOutOfBoundsException ignored) {
+                    //In case you reached the last available post (found on Mt. Everest)
+                }
+
+            }
+
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                Object textView = getObjectField(param.args[0], RecyclerPostsAdapter$ViewHolder.TimeView);
+                Object textView = getObjectField(param.args[0], Hooks.PostStuff.RecyclerPostsAdapter$ViewHolder.TimeView);
                 List posts = (List) callMethod(param.thisObject, "getPosts");
                 HashMap<String, String> ids = new HashMap<>(posts.size());
 
@@ -98,7 +90,6 @@ public class PostStuff {
                 } catch (IndexOutOfBoundsException ignored) {
                     //In case you reached the last available post (found on Mt. Everest)
                 }
-
             }
         });
 
@@ -111,7 +102,9 @@ public class PostStuff {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 String id = (String) getAdditionalInstanceField(param.thisObject, "updateExtraView");
-                callMethod(param.thisObject, "append", " #" + id);
+                if (id != null){
+                    callMethod(param.thisObject, "append", " #" + id);
+                }
             }
         });
 
@@ -123,10 +116,19 @@ public class PostStuff {
             @SuppressWarnings("ResourceType")
             @Override
             protected void afterHookedMethod(final MethodHookParam param) throws Throwable {
+                String colorField = null;
 
-                final Activity activity = (Activity) callMethod(param.thisObject, "getActivity");
+                for (Field f : param.thisObject.getClass().getDeclaredFields()){
+                    if (f.getType().getName().equals(String.class.getName())){
+                        if (f.toGenericString().startsWith("#")){
+                            colorField = f.getName();
+                        }
+                    }
+                }
+                final String finalColorField = colorField;
 
-                final int id = activity.getResources().getIdentifier("cameraButton", "id", "com.tellm.android.app");
+                final Activity activity = Utils.getActivity(param);
+                final int id = Utils.getIdentifierById(param,"cameraButton");
 
                 final Button color = new Button(activity);
                 color.setText("Choose\ncolor");
@@ -142,7 +144,7 @@ public class PostStuff {
                                 //Set background color
                                 ((View) ((View) param.getResult()).findViewById(id).getParent().getParent()).setBackgroundColor(Color.parseColor(Colors.get(which)));
                                 //set instance field
-                                XposedHelpers.setObjectField(param.thisObject, CreateTextPostFragment.color, Colors.get(which));
+                                XposedHelpers.setObjectField(param.thisObject, finalColorField, Colors.get(which));
                                 dialog.dismiss();
                             }
                         }).show();

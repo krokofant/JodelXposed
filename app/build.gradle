@@ -52,7 +52,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-maps:9.4.0'
     compile 'com.google.android.gms:play-services-location:9.4.0'
     compile 'com.squareup.moshi:moshi:1.2.0'
-    compile "com.android.support:support-v13:24.1.1"
+    compile 'com.github.pedrovgs:lynx:1.6'
 }
 
 repositories {

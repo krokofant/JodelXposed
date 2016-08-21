@@ -1,6 +1,10 @@
 package com.jodelXposed.models;
 
 public class UDI {
+
+    public boolean active = false;
+    public String udi = "";
+
     public boolean isActive() {
         return active;
     }
@@ -9,8 +13,6 @@ public class UDI {
         this.active = active;
     }
 
-    public boolean active = false;
-
     public String getUdi() {
         return udi;
     }
@@ -18,6 +20,4 @@ public class UDI {
     public void setUdi(String udi) {
         this.udi = udi;
     }
-
-    public String udi = "";
 }

@@ -12,6 +12,7 @@ import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
 
 import com.jodelXposed.R;
+import com.jodelXposed.hooks.ImageStuff;
 import com.jodelXposed.utils.Utils;
 
 import java.io.IOException;
@@ -54,6 +55,7 @@ public class ShareActivity extends Activity {
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
                 saveBitmap(bitmap);
+                ImageStuff.imageShared = true;
             } catch (IOException e) {
                 xlog("Error accessing file: " + e.getLocalizedMessage());
             }
