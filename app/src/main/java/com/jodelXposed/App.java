@@ -3,17 +3,24 @@ package com.jodelXposed;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageInfo;
 
+import com.jodelXposed.hooks.LayoutHooks;
 import com.jodelXposed.utils.Hooks;
 import com.jodelXposed.utils.Options;
 
+import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
+import de.robv.android.xposed.IXposedHookZygoteInit;
+import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 
 import static com.jodelXposed.utils.Log.dlog;
 import static com.jodelXposed.utils.Log.xlog;
 import static com.jodelXposed.utils.Utils.getSystemContext;
 
-public class App implements IXposedHookLoadPackage {
+public class App implements IXposedHookLoadPackage,IXposedHookZygoteInit, IXposedHookInitPackageResources {
+
+    public static String MODULE_PATH = null;
+
 
     @SuppressLint("DefaultLocale")
     @Override
@@ -22,8 +29,6 @@ public class App implements IXposedHookLoadPackage {
             return;
 
         if (lpparam.packageName.equals("com.tellm.android.app")) {
-
-//            new NativeHooks().hook(lpparam);
 
             try {
                 PackageInfo pkgInfo = getSystemContext().getPackageManager().getPackageInfo(lpparam.packageName, 0);
@@ -60,4 +65,21 @@ public class App implements IXposedHookLoadPackage {
             hooks.hook();
         }
     }
+
+    @Override
+    public void handleInitPackageResources(final XC_InitPackageResources.InitPackageResourcesParam resparam) throws Throwable {
+        if (!resparam.packageName.equals("com.tellm.android.app"))
+            return;
+
+        xlog("Adding resources");
+
+        new LayoutHooks(resparam);
+    }
+
+
+    @Override
+    public void initZygote(IXposedHookZygoteInit.StartupParam startupParam) throws Throwable {
+        MODULE_PATH = startupParam.modulePath;
+    }
+
 }

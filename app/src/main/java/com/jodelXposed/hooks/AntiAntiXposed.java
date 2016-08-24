@@ -1,6 +1,8 @@
 package com.jodelXposed.hooks;
 
 import android.app.Application;
+import android.text.Editable;
+import android.widget.EditText;
 
 import com.jodelXposed.utils.Hooks;
 
@@ -16,6 +18,8 @@ import static de.robv.android.xposed.XposedHelpers.callStaticMethod;
 import static de.robv.android.xposed.XposedHelpers.findAndHookConstructor;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 import static de.robv.android.xposed.XposedHelpers.findClass;
+import static de.robv.android.xposed.XposedHelpers.findFirstFieldByExactType;
+import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static de.robv.android.xposed.XposedHelpers.newInstance;
 import static de.robv.android.xposed.XposedHelpers.setObjectField;
 
@@ -97,6 +101,23 @@ public class AntiAntiXposed {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     setObjectField(param.thisObject, "ANALYTICS_URL", "");
+                }
+            });
+
+            findAndHookMethod("com.jodelapp.jodelandroidv3.view.CreateTextPostFragment", lpparam.classLoader, "afterTextChanged", Editable.class, new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+
+                    EditText editText = (EditText) getObjectField(param.thisObject,findFirstFieldByExactType(param.thisObject.getClass(),EditText.class).getName());
+                    int selection = editText.getSelectionStart();
+
+                    String text = param.args[0].toString();
+                    if (text.contains("xposed") || text.contains("Xposed")){
+                        text = text.replaceAll("xposed","xp0s3d");
+                        text = text.replaceAll("Xposed","Xp0s3d");
+                        editText.setText(text);
+                    }
+                    editText.setSelection(selection);
                 }
             });
 

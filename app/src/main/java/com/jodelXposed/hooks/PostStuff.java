@@ -4,15 +4,20 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 
 import com.jodelXposed.utils.Hooks;
+import com.jodelXposed.utils.Options;
 import com.jodelXposed.utils.Utils;
 
 import java.lang.reflect.Field;
@@ -22,15 +27,16 @@ import java.util.List;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import es.dmoral.prefs.Prefs;
 
 import static android.R.layout.simple_list_item_1;
 import static com.jodelXposed.utils.Utils.Colors.Colors;
+import static com.jodelXposed.utils.Utils.getActivity;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 import static de.robv.android.xposed.XposedHelpers.getAdditionalInstanceField;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static de.robv.android.xposed.XposedHelpers.setAdditionalInstanceField;
-import static de.robv.android.xposed.XposedHelpers.setObjectField;
 
 public class PostStuff {
 
@@ -101,7 +107,7 @@ public class PostStuff {
                 }
                 final String finalColorField = colorField;
 
-                final Activity activity = Utils.getActivity(param);
+                final Activity activity = getActivity(param);
                 final int id = Utils.getIdentifierById(param,"cameraButton");
 
                 final Button color = new Button(activity);
@@ -131,5 +137,55 @@ public class PostStuff {
 
             }
         });
+
+        findAndHookMethod("com.jodelapp.jodelandroidv3.view.PostDetailFragment", lpparam.classLoader, "onCreateView", LayoutInflater.class, ViewGroup.class, Bundle.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(final MethodHookParam param) throws Throwable {
+                final String postID = (String)XposedHelpers.getObjectField(param.thisObject,"postId");
+
+                final Switch sw = (Switch) ((View)param.getResult()).findViewWithTag("sw_gcm_notification");
+                sw.setVisibility(View.VISIBLE);
+                sw.setChecked(!Options.getInstance().getBetaObject().getNotificationList().contains(postID));
+
+                int color = Color.parseColor((String)getObjectField(param.thisObject,"axS"));
+
+                switchColor(sw,sw.isChecked(),color);
+                final int finalColor = color;
+                sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        if (!Prefs.with(getActivity(param)).readBoolean("displayedNotificationExplanation",false)){
+                            new AlertDialog.Builder(getActivity(param)).setTitle("You discovered a new Feature!")
+                                .setMessage("You discovered a new JodelXposed feature, the disabling of notifications in single threads. So now you have the possibility to mute specific threads which get annoying.")
+                                .setPositiveButton("Okay, dont display again", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        Prefs.with(getActivity(param)).writeBoolean("displayedNotificationExplanation",true);
+                                        dialogInterface.dismiss();
+                                    }
+                                })
+                                .setCancelable(false)
+                                .show();
+                        }
+                        switchColor(sw,b, finalColor);
+                        if (b){
+                            Options.getInstance().getBetaObject().getNotificationList().remove(postID);
+                        }else{
+                            Options.getInstance().getBetaObject().getNotificationList().add(postID);
+                        }
+                        Options.getInstance().save();
+                    }
+                });
+            }
+        });
+
+//        findAndHookMethod()
+
+    }
+    private void switchColor(Switch sw, boolean checked, int color) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            sw.getThumbDrawable().setColorFilter(checked ? color : Color.GRAY, PorterDuff.Mode.MULTIPLY);
+            sw.getTrackDrawable().setColorFilter(!checked ? color : Color.GRAY, PorterDuff.Mode.MULTIPLY);
+        }
     }
 }
