@@ -146,36 +146,39 @@ public class PostStuff {
                 final Switch sw = (Switch) ((View)param.getResult()).findViewWithTag("sw_gcm_notification");
                 sw.setVisibility(View.VISIBLE);
                 sw.setChecked(!Options.getInstance().getBetaObject().getNotificationList().contains(postID));
-
-                int color = Color.parseColor((String)getObjectField(param.thisObject,"axS"));
-
-                switchColor(sw,sw.isChecked(),color);
-                final int finalColor = color;
-                sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                        if (!Prefs.with(getActivity(param)).readBoolean("displayedNotificationExplanation",false)){
-                            new AlertDialog.Builder(getActivity(param)).setTitle("You discovered a new Feature!")
-                                .setMessage("You discovered a new JodelXposed feature, the disabling of notifications in single threads. So now you have the possibility to mute specific threads which get annoying.")
-                                .setPositiveButton("Okay, dont display again", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        Prefs.with(getActivity(param)).writeBoolean("displayedNotificationExplanation",true);
-                                        dialogInterface.dismiss();
-                                    }
-                                })
-                                .setCancelable(false)
-                                .show();
+                int color = 0;
+                try {
+                    color = Color.parseColor((String)getObjectField(param.thisObject,"axS"));
+                    switchColor(sw,sw.isChecked(),color);
+                    final int finalColor = color;
+                    sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                            if (!Prefs.with(getActivity(param)).readBoolean("displayedNotificationExplanation",false)){
+                                new AlertDialog.Builder(getActivity(param)).setTitle("You discovered a new Feature!")
+                                    .setMessage("You discovered a new JodelXposed feature, the disabling of notifications in single threads. So now you have the possibility to mute specific threads which get annoying.")
+                                    .setPositiveButton("Okay, dont display again", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            Prefs.with(getActivity(param)).writeBoolean("displayedNotificationExplanation",true);
+                                            dialogInterface.dismiss();
+                                        }
+                                    })
+                                    .setCancelable(false)
+                                    .show();
+                            }
+                            switchColor(sw,b, finalColor);
+                            if (b){
+                                Options.getInstance().getBetaObject().getNotificationList().remove(postID);
+                            }else{
+                                Options.getInstance().getBetaObject().getNotificationList().add(postID);
+                            }
+                            Options.getInstance().save();
                         }
-                        switchColor(sw,b, finalColor);
-                        if (b){
-                            Options.getInstance().getBetaObject().getNotificationList().remove(postID);
-                        }else{
-                            Options.getInstance().getBetaObject().getNotificationList().add(postID);
-                        }
-                        Options.getInstance().save();
-                    }
-                });
+                    });
+                }catch(IllegalArgumentException ignored){
+
+                }
             }
         });
 

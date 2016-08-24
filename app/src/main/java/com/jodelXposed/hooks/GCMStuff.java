@@ -15,6 +15,9 @@ public class GCMStuff {
 
     private boolean originalstate;
 
+    //TODO DYNAMIC HOOKING
+
+
     public GCMStuff(XC_LoadPackage.LoadPackageParam lpparam) {
         XposedHelpers.findAndHookMethod("com.jodelapp.jodelandroidv3.data.gcm.MyGcmListenerService", lpparam.classLoader, "a", String.class, Bundle.class, new XC_MethodHook() {
             @Override

@@ -4,6 +4,7 @@ import android.widget.ImageView;
 
 import com.jodelXposed.hooks.AntiAntiXposed;
 import com.jodelXposed.hooks.BetaStuff;
+import com.jodelXposed.hooks.GCMStuff;
 import com.jodelXposed.hooks.LocationStuff;
 import com.jodelXposed.hooks.ThemeStuff;
 import com.jodelXposed.hooks.UniqueDeviceIdentifierStuff;
@@ -170,6 +171,14 @@ public class Hooks {
             Log.dlog("#### ThemeStuff hooks loaded! ####");
         }catch(Exception e){
             Log.dlog("!!!! FAILED loading ThemeStuff hooks! !!!!\n\n");
+        }
+
+        try {
+            Log.dlog("#### Loading GCMStuff hooks ####");
+            new GCMStuff(lpparam);
+            Log.dlog("#### GCMStuff hooks loaded! ####");
+        }catch(Exception e){
+            Log.dlog("!!!! FAILED loading GCMStuff hooks! !!!!\n\n");
         }
     }
 

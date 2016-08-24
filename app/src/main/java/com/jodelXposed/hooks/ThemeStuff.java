@@ -1,8 +1,9 @@
 package com.jodelXposed.hooks;
 
 import android.os.Bundle;
-import com.jodelXposed.models.Theme;
+
 import com.jodelXposed.utils.Options;
+
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
@@ -12,6 +13,8 @@ import static com.jodelXposed.utils.Color.normalizeColor;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
 public class ThemeStuff {
+
+    //TODO DYNAMIC HOOKING
 
     public ThemeStuff(XC_LoadPackage.LoadPackageParam lpparam) {
         findAndHookMethod("com.jodelapp.jodelandroidv3.utilities.Util", lpparam.classLoader, "dq", String.class, new XC_MethodHook() {

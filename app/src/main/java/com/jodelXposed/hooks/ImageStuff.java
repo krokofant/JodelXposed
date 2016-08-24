@@ -114,6 +114,18 @@ public class ImageStuff {
                 return (Bitmap) param.args[1];
             }
         });
+
+//        findAndHookMethod("com.jodelapp.jodelandroidv3.view.ImagePreviewFragment", lpparam.classLoader, "onCreateView", LayoutInflater.class, ViewGroup.class, Bundle.class, new XC_MethodHook() {
+//            @Override
+//            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//                String name = ((Bundle)param.args[2]).getString("image_url");
+//                URL url_value = new URL(name);
+//                Bitmap mIcon1 = BitmapFactory.decodeStream(url_value.openConnection().getInputStream());
+//
+//            }
+//        });
+
+
     }
 
     private void loadImage(final Bitmap bitmap, XC_MethodHook.MethodHookParam param) {
