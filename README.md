@@ -13,24 +13,20 @@ This modules utilises the [Xposed Framework](https://www.youtube.com/watch?v=uRR
 * Track posters within a thread
 * Removed blur on images
 * Color selector for posts
+* Unfollow posts to block notifications
+* Themeing support - edit the colors manually in `.jodel-settings-v2`
+* Upload custom images
+* Change/manage account
 
 ### Upload custom images
-1. Share image to JodelXposed
-2. Take picture with Jodel camera
-3. Long press the image
-4. Use Volume Down to change layout
+1. Take picture with Jodel camera
+2. Select *Replace image*
+3. Choose the image shared to Jodel or select from gallery
 
 ### Increased control over account
-- The account id (UID) is automatically backed upp in `.jodel-settings.json`
+- The account id (UID) is automatically backed upp in `.jodel-settings-v2`
 - The UID can be manually changed to change account
 - **PS**: Clear all Jodel app data after changing the UID
-
-## Beta Features
-Currently enabled beta features are:
-
-1. Channels (follow specific hashtags, when searching for hashtags on the right side of the toolbar)
-2. Search for hashtags (in posts)
-3. Pin posts (in PostDetailView on the right side of the toolbar)
 
 ## Version compatibility
 The module aims for compatibility with the latest Jodel version. Jodel apks are usually linked in [the thread on XDA](http://forum.xda-developers.com/xposed/modules/mod-jodelxposed-enhancements-t3350019/).
@@ -47,3 +43,7 @@ The latest supported Jodel version is noted [here](https://github.com/krokofant/
 Pull requests are welcome if you would like to provide additional features or just update the hooks.
 
 Please *test the PR* before you submit it.
+
+# Special thanks
+* Charlie Kelly
+* Unbrick
