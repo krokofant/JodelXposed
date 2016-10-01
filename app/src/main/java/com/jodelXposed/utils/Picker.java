@@ -37,7 +37,6 @@ public class Picker extends AppCompatActivity {
 
         if (ContextCompat.checkSelfPermission(this, (Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(this, (Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(,PERMISSION_REQUEST_CODE);
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION) || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ) {
                 //we could derp about how stupid the user is for not giving permissions here using an alertdialog or similar...
 				//on alertDialog dismiss:
