@@ -12,9 +12,6 @@ This modules utilises the [Xposed Framework](https://www.youtube.com/watch?v=uRR
 * Disabled anti-xposed measures
 * Track posters within a thread
 * Removed blur on images
-* Color selector for posts
-* Unfollow posts to block notifications
-* Themeing support - edit the colors manually in `.jodel-settings-v2`
 * Upload custom images
 * Change/manage account
 

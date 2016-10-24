@@ -1,12 +1,12 @@
-package com.jodelXposed.models;
+package com.jodelXposed.models
 
-/**
- * Created by Admin on 02.10.2016.
- */
+class Location(var active: Boolean = false, var lat: Double = 0.0, var lng: Double = 0.0)
 
-public class Hookvalues {
+class UDI(var active: Boolean = true, var udi: String = "")
 
-    public int versionCode = 1;
+class Hookvalues {
+
+    @JvmField var versionCode = 1
 
     /*
     * package com.jodelapp.jodelandroidv3.model.Storage;
@@ -16,8 +16,8 @@ public class Hookvalues {
     * modifier: public
     * search term: features
     * */
-    public String Class_Storage = "com.jodelapp.jodelandroidv3.model.Storage";
-    public String BetaHook_UnlockFeatures = "bp";
+    @JvmField var Class_Storage = "com.jodelapp.jodelandroidv3.model.Storage"
+    @JvmField var BetaHook_UnlockFeatures = "bp"
 
     /*
     * package com.jodelapp.jodelandroidv3.view.PhotoEditFragment;
@@ -25,8 +25,8 @@ public class Hookvalues {
     * class: ImageView.class
     * search term: setImageBitmap
     * */
-    public String Class_PhotoEditFragment = "com.jodelapp.jodelandroidv3.view.PhotoEditFragment";
-    public String ImageHookValues_ImageView = "ayZ";
+    @JvmField var Class_PhotoEditFragment = "com.jodelapp.jodelandroidv3.view.PhotoEditFragment"
+    @JvmField var ImageHookValues_ImageView = "ayZ"
 
     /*
     * package com.jodelapp.jodelandroidv3.view.adapter.PostDetailRecyclerAdapter;
@@ -37,8 +37,8 @@ public class Hookvalues {
     * modifier: public
     * search term:  postViewHolder.AP();
     * */
-    public String Class_PostDetailRecyclerAdapter = "com.jodelapp.jodelandroidv3.view.adapter.PostDetailRecyclerAdapter";
-    public String PostStuff_TrackPostsMethod = "a";
+    @JvmField var Class_PostDetailRecyclerAdapter = "com.jodelapp.jodelandroidv3.view.adapter.PostDetailRecyclerAdapter"
+    @JvmField var PostStuff_TrackPostsMethod = "a"
 
 
     /*
@@ -47,8 +47,8 @@ public class Hookvalues {
     * class: String.class
     * search term: arguments.getString("com.tellm.post.color");
     * */
-    public String Class_CreateTextPostFragment = "com.jodelapp.jodelandroidv3.view.CreateTextPostFragment";
-    public String PostStuff_ColorField = "axJ";
+    @JvmField var Class_CreateTextPostFragment = "com.jodelapp.jodelandroidv3.view.CreateTextPostFragment"
+    @JvmField var PostStuff_ColorField = "axJ"
 
     /*
     * package com.jodelapp.jodelandroidv3.features.mymenu.MyMenuPresenter;
@@ -67,9 +67,9 @@ public class Hookvalues {
     *       modifier: public
     *       search term: String str = myMenuItem.name;
     * */
-    public String Class_MyMenuPresenter = "com.jodelapp.jodelandroidv3.features.mymenu.MyMenuPresenter";
-    public String Settings_AddEntriesMethod = "xh";
-    public String Settings_HandleClickEventsMethod = "a";
+    @JvmField var Class_MyMenuPresenter = "com.jodelapp.jodelandroidv3.features.mymenu.MyMenuPresenter"
+    @JvmField var Settings_AddEntriesMethod = "xh"
+    @JvmField var Settings_HandleClickEventsMethod = "a"
 
     /*
     * package com.jodelapp.jodelandroidv3.data.gcm.MyGcmListenerService;
@@ -80,8 +80,8 @@ public class Hookvalues {
     * modifier: public
     * search term: AnalyticsUtil.u(ShareConstants.WEB_DIALOG_PARAM_MESSAGE, "received");
     * */
-    public String Class_MyGcmListenerService = "com.jodelapp.jodelandroidv3.data.gcm.MyGcmListenerService";
-    public String Theme_GCMReceiverMethod = "a";
+    @JvmField var Class_MyGcmListenerService = "com.jodelapp.jodelandroidv3.data.gcm.MyGcmListenerService"
+    @JvmField var Theme_GCMReceiverMethod = "a"
 
     /*
     * package com.jodelapp.jodelandroidv3.utilities.UniqueDeviceIdentifier;
@@ -91,7 +91,7 @@ public class Hookvalues {
     * modifier: public
     * search term: (getValue()); //method call to getValue
     * */
-    public String Class_UniqueDeviceIdentifier = "com.jodelapp.jodelandroidv3.utilities.UniqueDeviceIdentifier";
-    public String UDI_GetUdiMethod = "za";
+    @JvmField var Class_UniqueDeviceIdentifier = "com.jodelapp.jodelandroidv3.utilities.UniqueDeviceIdentifier"
+    @JvmField var UDI_GetUdiMethod = "za"
 
 }

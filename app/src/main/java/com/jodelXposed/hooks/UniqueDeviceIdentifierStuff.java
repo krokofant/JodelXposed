@@ -1,5 +1,7 @@
 package com.jodelXposed.hooks;
 
+import com.jodelXposed.models.Hookvalues;
+import com.jodelXposed.models.UDI;
 import com.jodelXposed.utils.Options;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -14,21 +16,22 @@ public class UniqueDeviceIdentifierStuff {
      * Spoof UID
      */
     public UniqueDeviceIdentifierStuff(XC_LoadPackage.LoadPackageParam lpparam) {
-        findAndHookMethod(Options.getInstance().getHooks().Class_UniqueDeviceIdentifier, lpparam.classLoader, Options.getInstance().getHooks().UDI_GetUdiMethod, new XC_MethodHook() {
+        Hookvalues hooks = Options.INSTANCE.getHooks();
+        findAndHookMethod(hooks.Class_UniqueDeviceIdentifier, lpparam.classLoader, hooks.UDI_GetUdiMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 String realUDI = (String) param.getResult();
-                com.jodelXposed.models.UDI udiOptions = Options.getInstance().options.udi;
-                if (udiOptions.udi.length() == 0) {
-                    udiOptions.udi = realUDI;
+                UDI udiOptions = Options.INSTANCE.getUdi();
+                if (udiOptions.getUdi().length() == 0) {
+                    udiOptions.setUdi(realUDI);
                     xlog("Backing up UDI");
-                    Options.getInstance().save();
+                    Options.INSTANCE.save();
                 }
-                if (udiOptions.active) {
-                    if (udiOptions.udi.equals(realUDI)) {
+                if (udiOptions.getActive()) {
+                    if (udiOptions.getUdi().equals(realUDI) || udiOptions.getUdi().length() == 0) {
                         xlog("Using real UDI");
                     } else {
-                        String spoofUDI = udiOptions.udi;
+                        String spoofUDI = udiOptions.getUdi();
                         xlog("UDI spoof = " + spoofUDI);
                         param.setResult(spoofUDI);
                     }

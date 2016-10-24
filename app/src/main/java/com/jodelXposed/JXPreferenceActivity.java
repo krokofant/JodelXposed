@@ -1,17 +1,18 @@
 package com.jodelXposed;
 
-import android.graphics.Color;
-import android.graphics.PorterDuff;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.SwitchPreference;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.widget.ImageView;
 
 import com.jodelXposed.models.Location;
-import com.jodelXposed.models.UDI;
 import com.jodelXposed.utils.Options;
+import com.jodelXposed.utils.Picker;
 import com.mypopsy.maps.StaticMap;
 import com.squareup.picasso.Picasso;
 
@@ -25,23 +26,23 @@ import java.net.URISyntaxException;
 @SuppressWarnings("deprecation")
 public class JXPreferenceActivity extends AppCompatPreferenceActivity implements Preference.OnPreferenceClickListener, Preference.OnPreferenceChangeListener {
 
-    final Options options = Options.getInstance();
-    Location location = options.getLocationObject();
-    UDI udi = options.getUDIObject();
+    final Options options = Options.INSTANCE;
 
     @Override
     public void onCreate(Bundle paramBundle) {
         super.onCreate(paramBundle);
-        setContentView(R.layout.layot_jx_prefs);
+        Location location = options.getLocation();
+        setContentView(R.layout.layout_jx_prefs);
         StaticMap map = new StaticMap().marker(location.getLat(),location.getLng()).size(1280, 480);
         ImageView ivMap = (ImageView) findViewById(R.id.ivMap);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_material);
-        upArrow.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
+        if(getSupportActionBar() != null)
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        final Drawable upArrow = ContextCompat.getDrawable(this, R.drawable.ic_back_button);
+//        upArrow.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
-        toolbar.setTitleTextColor(Color.BLACK);
+        getSupportActionBar().setTitle("");
         try {
             Picasso.with(this).load(String.valueOf(map.toURL().toURI())).placeholder(R.drawable.progress_animation).into(ivMap);
         } catch (MalformedURLException | URISyntaxException e) {
@@ -51,42 +52,43 @@ public class JXPreferenceActivity extends AppCompatPreferenceActivity implements
 
         addPreferencesFromResource(R.xml.jx_prefs);
         findPreference("switch_location").setOnPreferenceChangeListener(this);
-        findPreference("switch_udi").setOnPreferenceChangeListener(this);
-        findPreference("change_udi").setOnPreferenceChangeListener(this);
+        findPreference("change_location").setOnPreferenceClickListener(this);
 
-        ((SwitchPreference)findPreference("switch_location")).setChecked(location.isActive());
-        ((SwitchPreference)findPreference("switch_udi")).setChecked(udi.isActive());
+        ((SwitchPreference)findPreference("switch_location")).setChecked(location.getActive());
     }
 
     @Override
     public boolean onPreferenceClick(Preference preference) {
         switch (preference.getKey()){
-            case "change_udi":
-                editUDIDialog();
+            case "change_location":
+                startActivity(new Intent(this, Picker.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).putExtra("choice",1));
                 break;
             default:
                 break;
         }
         return true;
-    }
-
-    private void editUDIDialog() {
     }
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         switch (preference.getKey()){
             case "switch_location":
-                location.setActive(((SwitchPreference)preference).isChecked());
-                options.save();
-                break;
-            case "switch_udi":
-                udi.setActive(((SwitchPreference)preference).isChecked());
+                if(newValue instanceof Boolean){
+                    options.getLocation().setActive((Boolean)newValue);
+                }
                 options.save();
                 break;
             default:
                 break;
         }
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == android.R.id.home) {
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

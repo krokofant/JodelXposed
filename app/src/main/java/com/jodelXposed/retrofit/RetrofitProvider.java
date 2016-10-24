@@ -17,7 +17,7 @@ public class RetrofitProvider {
 
     static {
         Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl("https://raw.githubusercontent.com")
+            .baseUrl("https://raw.githubusercontent.com/krokofant/JodelXposed/")
             .addConverterFactory(GsonConverterFactory.create())
             .build();
 

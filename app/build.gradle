@@ -1,5 +1,6 @@
 import groovy.swing.SwingBuilder
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 project.ext {
     versionCode = 17
@@ -40,6 +41,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
 }
 
 dependencies {
@@ -58,12 +62,14 @@ dependencies {
     compile 'com.github.machinarius:preferencefragment:0.1.1'
     compile 'com.github.renaudcerrato:static-maps-api:1.0.2'
     compile 'com.squareup.picasso:picasso:2.5.2'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
 repositories {
     flatDir {
         dirs 'libs'
     }
+    mavenCentral()
 }
 
 gradle.taskGraph.whenReady { taskGraph ->

@@ -7,7 +7,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.widget.Toast;
 
-import com.jodelXposed.hooks.LayoutHooks;
 import com.jodelXposed.models.Hookvalues;
 import com.jodelXposed.retrofit.Response.Classes;
 import com.jodelXposed.retrofit.Response.HooksResponse;
@@ -16,10 +15,8 @@ import com.jodelXposed.retrofit.RetrofitProvider;
 import com.jodelXposed.utils.Hooks;
 import com.jodelXposed.utils.Options;
 
-import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
-import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -30,7 +27,7 @@ import static com.jodelXposed.utils.Log.xlog;
 import static com.jodelXposed.utils.Utils.getNewIntent;
 import static com.jodelXposed.utils.Utils.getSystemContext;
 
-public class App implements IXposedHookLoadPackage,IXposedHookZygoteInit, IXposedHookInitPackageResources {
+public class App implements IXposedHookLoadPackage,IXposedHookZygoteInit {
 
     public static String MODULE_PATH = null;
 
@@ -64,7 +61,7 @@ public class App implements IXposedHookLoadPackage,IXposedHookZygoteInit, IXpose
                 xlog("Information cannot be gathered");
             }
             try {
-                Options.getInstance();
+                Options.INSTANCE.load();
             }catch (Exception e){
                 e.printStackTrace();
                 xlog("Options cannot be loaded");
@@ -79,7 +76,7 @@ public class App implements IXposedHookLoadPackage,IXposedHookZygoteInit, IXpose
                 checkPermissions();
             }
 
-            if (Options.getInstance().getHooks().versionCode!=pkgInfo.versionCode){
+            if (Options.INSTANCE.getHooks().versionCode!=pkgInfo.versionCode){
                 updateHooks(pkgInfo.versionCode);
             }
 
@@ -97,7 +94,7 @@ public class App implements IXposedHookLoadPackage,IXposedHookZygoteInit, IXpose
 
 
     private void updateHooks(final int versionCode) {
-        final Hookvalues hooks = Options.getInstance().getHooks();
+        final Hookvalues hooks = Options.INSTANCE.getHooks();
 
         RetrofitProvider.getJodelXposedService().getHooks(versionCode).enqueue(new Callback<HooksResponse>() {
             @Override
@@ -124,11 +121,11 @@ public class App implements IXposedHookLoadPackage,IXposedHookZygoteInit, IXpose
                     hooks.Class_Storage = classes.getClassStorage();
                     hooks.Class_UniqueDeviceIdentifier = classes.getClassUniqueDeviceIdentifier();
                     //Success updating hooks, lets update the local version code
-                    Options.getInstance().getHooks().versionCode = versionCode;
+                    Options.INSTANCE.getHooks().versionCode = versionCode;
 
                     Toast.makeText(getSystemContext(), rhooks.getUpdatemessage()+" Please soft-reboot your device!", Toast.LENGTH_LONG).show();
 
-                    Options.getInstance().save();
+                    Options.INSTANCE.save();
                 }catch (Exception e){
                     Toast.makeText(getSystemContext(), "Your Jodel version isnt supported by JodelXposed yet.", Toast.LENGTH_LONG).show();
                     e.printStackTrace();
@@ -147,13 +144,5 @@ public class App implements IXposedHookLoadPackage,IXposedHookZygoteInit, IXpose
     @Override
     public void initZygote(StartupParam startupParam) throws Throwable {
         MODULE_PATH = startupParam.modulePath;
-    }
-
-    @Override
-    public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resparam) throws Throwable {
-        if (!resparam.packageName.equals("com.tellm.android.app"))
-                      return;
-        xlog("Adding resources");
-        new LayoutHooks(resparam);
     }
 }

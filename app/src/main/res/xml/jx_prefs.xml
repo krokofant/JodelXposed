@@ -9,22 +9,10 @@
             android:key="switch_location"
             android:title="Location enabled" />
 
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        android:key="pref_category_udi"
-        android:title="Change UDI">
-
-        <SwitchPreference
-            android:persistent="false"
-            android:key="switch_udi"
-            android:title="Spoof UDI"
-            android:contentDescription="Delete Jodel app data and restart to apply"/>
-
         <Preference
             android:persistent="false"
-            android:key="change_udi"
-            android:title="Change UDI"/>
+            android:key="change_location"
+            android:title="Change location"/>
 
     </PreferenceCategory>
 

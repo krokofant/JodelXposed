@@ -18,5 +18,5 @@
     "Class_MyGcmListenerService": "com.jodelapp.jodelandroidv3.data.gcm.MyGcmListenerService",
     "Class_UniqueDeviceIdentifier": "com.jodelapp.jodelandroidv3.utilities.UniqueDeviceIdentifier"
   },
-  "updatemessage":"Updated hooks for 1000054 (4.22.2)",
+  "updatemessage":"Updated hooks for 1000054 (4.22.2)"
 }
