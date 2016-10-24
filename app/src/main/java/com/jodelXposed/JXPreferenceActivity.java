@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 
 import com.jodelXposed.models.Location;
+import com.jodelXposed.utils.AppCompatPreferenceActivity;
 import com.jodelXposed.utils.Options;
 import com.jodelXposed.utils.Picker;
 import com.mypopsy.maps.StaticMap;
@@ -40,7 +41,6 @@ public class JXPreferenceActivity extends AppCompatPreferenceActivity implements
         if(getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         final Drawable upArrow = ContextCompat.getDrawable(this, R.drawable.ic_back_button);
-//        upArrow.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
         getSupportActionBar().setTitle("");
         try {

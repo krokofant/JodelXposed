@@ -1,4 +1,4 @@
-package com.jodelXposed;
+package com.jodelXposed.utils;
 
 import android.content.Intent;
 import android.content.res.Configuration;

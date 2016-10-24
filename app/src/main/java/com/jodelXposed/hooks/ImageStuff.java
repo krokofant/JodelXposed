@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.jodelXposed.models.Hookvalues;
+import com.jodelXposed.utils.Log;
 import com.jodelXposed.utils.Options;
 
 import java.lang.reflect.Method;
@@ -28,6 +29,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 import static android.R.layout.simple_list_item_1;
 import static android.os.FileObserver.CLOSE_WRITE;
+import static com.jodelXposed.utils.Bitmap.jodelImagePath;
 import static com.jodelXposed.utils.Bitmap.loadBitmap;
 import static com.jodelXposed.utils.Utils.getActivity;
 import static com.jodelXposed.utils.Utils.getIdentifierById;
@@ -56,6 +58,15 @@ public class ImageStuff {
                     imageShared = false;
                 }
 
+                final FileObserver imageFileObserver = new FileObserver(jodelImagePath, CLOSE_WRITE) {
+                    @Override
+                    public void onEvent(int i, String s) {
+                        Log.dlog("File Observer issued, loading image");
+                        loadImage(loadBitmap(), param);
+                        this.stopWatching();
+                    }
+                };
+
                 final Activity activity = getActivity(param);
 
                 final int id = getIdentifierById(param, "save_to_gallery_button");
@@ -77,6 +88,7 @@ public class ImageStuff {
                                         loadImage(loadBitmap(), param);
                                         break;
                                     case 1:
+                                        imageFileObserver.startWatching();
                                         getSystemContext().startActivity(getNewIntent("utils.Picker").putExtra("choice", 3));
                                         break;
                                 }
@@ -95,16 +107,6 @@ public class ImageStuff {
                 addImage.setLayoutParams(params);
                 RelativeLayout relativeLayout = (RelativeLayout) ((View) param.getResult()).findViewById(id).getParent();
                 relativeLayout.addView(addImage);
-
-                /*
-                * Start file observer to react on a PictureChoosenEvent
-                * */
-                new FileObserver(com.jodelXposed.utils.Bitmap.jodelImagePath, CLOSE_WRITE) {
-                    @Override
-                    public void onEvent(int i, String s) {
-                        loadImage(loadBitmap(), param);
-                    }
-                }.startWatching();
             }
         });
 

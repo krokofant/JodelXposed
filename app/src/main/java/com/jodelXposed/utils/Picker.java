@@ -5,10 +5,11 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.BitmapFactory;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -18,8 +19,9 @@ import com.jodelXposed.JXPreferenceActivity;
 import com.jodelXposed.models.Location;
 import com.schibstedspain.leku.LocationPickerActivity;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.File;
+
+import id.zelory.compressor.Compressor;
 
 import static com.jodelXposed.utils.Log.xlog;
 
@@ -75,9 +77,11 @@ public class Picker extends AppCompatActivity{
     }
 
     private void galleryPicker() {
-        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-        photoPickerIntent.setType("image/*");
-        startActivityForResult(photoPickerIntent, GALLERY_REQUEST_CODE);
+//        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+//        photoPickerIntent.setType("image/*");
+//        startActivityForResult(photoPickerIntent, GALLERY_REQUEST_CODE);
+        Intent i = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(i, GALLERY_REQUEST_CODE);
     }
 
     private void startLocationPicker() {
@@ -108,18 +112,16 @@ public class Picker extends AppCompatActivity{
                     Toast.makeText(Picker.this, "Success, please refresh your feed!", Toast.LENGTH_LONG).show();
                     break;
                 case GALLERY_REQUEST_CODE:
-                    try {
-                        final Uri imageUri = data.getData();
-                        final InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                        final android.graphics.Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-                        Bitmap.saveBitmap(selectedImage);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
+                    Uri selectedImage = data.getData();
+                    String[] filePathColumn = { MediaStore.Images.Media.DATA };
+                    Cursor cursor = getContentResolver().query(selectedImage,filePathColumn, null, null, null);
+                    cursor.moveToFirst();
+                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                    String picturePath = cursor.getString(columnIndex);
+                    cursor.close();
+                    Bitmap.saveBitmap(Compressor.getDefault(this).compressToBitmap(new File(picturePath)));
                     break;
             }
-        }else{
-            Toast.makeText(Picker.this, "Failed / Cancelled", Toast.LENGTH_LONG).show();
         }
         finish();
     }
